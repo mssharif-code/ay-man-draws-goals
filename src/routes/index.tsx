@@ -267,7 +267,7 @@ function InterestCard({
 
 function ScienceFairSection() {
   return (
-    <section className="bg-ink px-6 py-24 text-primary-foreground md:px-12 lg:px-20">
+    <section id="science-fair" className="bg-ink px-6 py-24 text-primary-foreground md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div className="order-2 lg:order-1">
