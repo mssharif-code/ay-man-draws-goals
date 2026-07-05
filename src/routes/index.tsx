@@ -164,6 +164,7 @@ function InterestCard({
   description: string;
   image: string;
   accent: "coral" | "teal";
+  stats: { label: string; value: string }[];
 }) {
   const accentColor = accent === "coral" ? "text-coral" : "text-teal";
   const accentBg = accent === "coral" ? "bg-coral" : "bg-teal";
