@@ -354,7 +354,7 @@ function ScienceFairSection() {
 
 function FooterSection() {
   return (
-    <footer className="bg-cream px-6 py-16 md:px-12 lg:px-20">
+    <footer id="connect" className="bg-cream px-6 py-16 md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
