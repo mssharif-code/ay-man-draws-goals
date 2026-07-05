@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef } from "react";
 import footballImg from "@/assets/football.jpg";
 import drawingImg from "@/assets/drawing.jpg";
 import scienceFairImg from "@/assets/science-fair.jpg";
@@ -8,9 +7,56 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const navLinks = [
+  { label: "Home", target: "hero" },
+  { label: "About", target: "about" },
+  { label: "Interests", target: "interests" },
+  { label: "Science Fair", target: "science-fair" },
+  { label: "Connect", target: "connect" },
+];
+
+function StickyNav() {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
+    e.preventDefault();
+    const el = document.getElementById(target);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  return (
+    <nav className="fixed top-0 left-0 z-50 w-full bg-background/80 backdrop-blur-md border-b border-border">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3 md:px-12">
+        <a
+          href="#hero"
+          onClick={(e) => handleClick(e, "hero")}
+          className="text-lg font-bold tracking-tight text-foreground hover:text-primary transition-colors"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          Ayman.
+        </a>
+        <div className="flex items-center gap-1 md:gap-2">
+          {navLinks.map((link) => (
+            <a
+              key={link.target}
+              href={`#${link.target}`}
+              onClick={(e) => handleClick(e, link.target)}
+              className="rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground md:px-3 md:text-sm"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              {link.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 function Index() {
   return (
     <div className="min-h-screen bg-background">
+      <StickyNav />
       <HeroSection />
       <AboutSection />
       <InterestsSection />
@@ -22,7 +68,7 @@ function Index() {
 
 function HeroSection() {
   return (
-    <section className="relative flex min-h-[90vh] flex-col items-start justify-center px-6 md:px-12 lg:px-20">
+    <section id="hero" className="relative flex min-h-[90vh] flex-col items-start justify-center px-6 pt-16 md:px-12 lg:px-20">
       <div className="max-w-5xl">
         <p
           className="mb-2 text-lg font-medium tracking-widest uppercase text-primary md:text-xl"
@@ -62,7 +108,7 @@ function HeroSection() {
 
 function AboutSection() {
   return (
-    <section className="bg-cream px-6 py-24 md:px-12 lg:px-20">
+    <section id="about" className="bg-cream px-6 py-24 md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-12 md:grid-cols-2 md:items-center">
           <div>
@@ -109,7 +155,7 @@ function AboutSection() {
 
 function InterestsSection() {
   return (
-    <section className="px-6 py-24 md:px-12 lg:px-20">
+    <section id="interests" className="px-6 py-24 md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <p
           className="mb-4 text-sm font-semibold tracking-widest uppercase text-primary"
@@ -221,7 +267,7 @@ function InterestCard({
 
 function ScienceFairSection() {
   return (
-    <section className="bg-ink px-6 py-24 text-primary-foreground md:px-12 lg:px-20">
+    <section id="science-fair" className="bg-ink px-6 py-24 text-primary-foreground md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           <div className="order-2 lg:order-1">
@@ -308,7 +354,7 @@ function ScienceFairSection() {
 
 function FooterSection() {
   return (
-    <footer className="bg-cream px-6 py-16 md:px-12 lg:px-20">
+    <footer id="connect" className="bg-cream px-6 py-16 md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
           <div>
