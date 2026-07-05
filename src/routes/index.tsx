@@ -155,7 +155,7 @@ function AboutSection() {
 
 function InterestsSection() {
   return (
-    <section className="px-6 py-24 md:px-12 lg:px-20">
+    <section id="interests" className="px-6 py-24 md:px-12 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <p
           className="mb-4 text-sm font-semibold tracking-widest uppercase text-primary"
