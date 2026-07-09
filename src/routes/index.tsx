@@ -12,6 +12,7 @@ export const Route = createFileRoute("/")({
 const navLinks = [
   { label: "Helpers", target: "helpers" },
   { label: "Responsibilities", target: "responsibilities" },
+  { label: "Reviews", target: "testimonials" },
   { label: "Hiring Tips", target: "tips" },
   { label: "Contact", target: "contact" },
 ];
@@ -184,6 +185,7 @@ function Index() {
       <Hero />
       <HelpersSection />
       <ResponsibilitiesSection />
+      <TestimonialsSection />
       <TipsSection />
       <ContactSection />
     </div>
