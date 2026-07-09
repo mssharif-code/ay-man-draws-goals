@@ -13,6 +13,7 @@ const navLinks = [
   { label: "Helpers", target: "helpers" },
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
+  { label: "FAQ", target: "faq" },
   { label: "Hiring Tips", target: "tips" },
   { label: "Contact", target: "contact" },
 ];
@@ -186,6 +187,7 @@ function Index() {
       <HelpersSection />
       <ResponsibilitiesSection />
       <TestimonialsSection />
+      <FaqSection />
       <TipsSection />
       <ContactSection />
     </div>
@@ -551,6 +553,93 @@ function TestimonialsSection() {
                 </p>
               </div>
             </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const faqs = [
+  {
+    question: "How much does a household helper cost per hour?",
+    answer:
+      "Rates typically range from $20 to $35 per hour depending on the role, experience, and your location. Cleaners and nannies usually start around $20–$28/hr, while experienced cooks and specialized gardeners may charge up to $35/hr.",
+  },
+  {
+    question: "Are the helpers background-checked?",
+    answer:
+      "Yes. Every helper on our platform goes through identity verification and a background check. We also collect references from previous employers before they can accept bookings.",
+  },
+  {
+    question: "What tasks can a helper help with?",
+    answer:
+      "Helpers cover cleaning, cooking, childcare, and gardening. Each helper profile lists their specific responsibilities and skills so you can choose the right fit for your home.",
+  },
+  {
+    question: "How do I schedule a helper?",
+    answer:
+      "Pick a helper, choose a date and time, and confirm your booking. Most helpers are available for one-time visits, weekly schedules, or recurring appointments.",
+  },
+  {
+    question: "What if I'm not satisfied with the service?",
+    answer:
+      "We offer a satisfaction guarantee. If something isn't right, contact us within 24 hours and we'll reschedule a visit or help you find a better-matched helper.",
+  },
+  {
+    question: "Do I need to provide cleaning supplies or equipment?",
+    answer:
+      "It depends on the helper. Cleaners usually bring their own supplies, but it's best to confirm during booking. Cooks and gardeners may use your kitchen tools or yard equipment unless arranged otherwise.",
+  },
+];
+
+function FaqSection() {
+  return (
+    <section id="faq" className="px-6 py-24 md:px-10">
+      <div className="mx-auto max-w-4xl">
+        <div className="mb-14 text-center">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-terracotta">
+            Common Questions
+          </p>
+          <h2
+            className="text-6xl leading-[0.9] tracking-tight text-charcoal md:text-7xl lg:text-8xl"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            QUESTIONS?
+          </h2>
+          <p className="mx-auto mt-5 max-w-lg text-muted-foreground">
+            Everything you need to know about hiring household helpers and how pricing works.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {faqs.map((item) => (
+            <details
+              key={item.question}
+              className="group rounded-2xl border border-border bg-card p-6 open:border-sage/40 open:shadow-sm"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between text-lg font-semibold tracking-tight text-charcoal">
+                {item.question}
+                <span className="ml-4 text-sage transition group-open:rotate-180">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </span>
+              </summary>
+              <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+                {item.answer}
+              </p>
+            </details>
           ))}
         </div>
       </div>
