@@ -14,6 +14,7 @@ const navLinks = [
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
   { label: "FAQ", target: "faq" },
+  { label: "Membership", target: "membership" },
   { label: "Hiring Tips", target: "tips" },
   { label: "Contact", target: "contact" },
 ];
@@ -188,6 +189,7 @@ function Index() {
       <ResponsibilitiesSection />
       <TestimonialsSection />
       <FaqSection />
+      <MembershipSection />
       <TipsSection />
       <ContactSection />
     </div>
@@ -641,6 +643,77 @@ function FaqSection() {
               </p>
             </details>
           ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const membershipBenefits = [
+  "15% off every booking after your third visit",
+  "Priority scheduling with your favorite helper",
+  "Free rescheduling up to 24 hours before a visit",
+  "Exclusive member-only seasonal offers",
+];
+
+function MembershipSection() {
+  return (
+    <section id="membership" className="bg-sage px-6 py-24 text-white md:px-10">
+      <div className="mx-auto max-w-5xl">
+        <div className="grid items-center gap-10 md:grid-cols-2">
+          <div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-white/70">
+              Helpers Club
+            </p>
+            <h2
+              className="text-5xl leading-[0.9] tracking-tight md:text-6xl lg:text-7xl"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              SAVE MORE
+              <br />
+              AS A REGULAR.
+            </h2>
+            <p className="mt-5 max-w-md text-white/80">
+              Join our free membership program and unlock discounts reserved for
+              returning customers. The more you book, the more you save.
+            </p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/10 p-8 backdrop-blur">
+            <div className="mb-6 flex items-baseline gap-2">
+              <span className="text-6xl tracking-tight md:text-7xl" style={{ fontFamily: "var(--font-display)" }}>
+                15%
+              </span>
+              <span className="text-lg font-semibold uppercase tracking-widest text-terracotta">
+                Off every booking
+              </span>
+            </div>
+
+            <ul className="space-y-3">
+              {membershipBenefits.map((benefit) => (
+                <li key={benefit} className="flex items-start gap-3 text-sm text-white/90">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-terracotta text-xs font-bold text-white">
+                    ✓
+                  </span>
+                  {benefit}
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href="#contact"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="mt-8 inline-block w-full rounded-xl bg-white py-4 text-center text-sm font-bold uppercase tracking-widest text-sage transition hover:bg-cream"
+            >
+              Become a Member
+            </a>
+            <p className="mt-3 text-center text-xs text-white/60">
+              No fees. Cancel anytime. Open to all returning customers.
+            </p>
+          </div>
         </div>
       </div>
     </section>
