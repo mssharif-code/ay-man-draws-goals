@@ -12,6 +12,7 @@ export const Route = createFileRoute("/")({
 const navLinks = [
   { label: "Helpers", target: "helpers" },
   { label: "Responsibilities", target: "responsibilities" },
+  { label: "Reviews", target: "testimonials" },
   { label: "Hiring Tips", target: "tips" },
   { label: "Contact", target: "contact" },
 ];
@@ -184,6 +185,7 @@ function Index() {
       <Hero />
       <HelpersSection />
       <ResponsibilitiesSection />
+      <TestimonialsSection />
       <TipsSection />
       <ContactSection />
     </div>
@@ -441,6 +443,114 @@ function TipsSection() {
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t.body}</p>
             </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const testimonials = [
+  {
+    id: "t1",
+    name: "Sarah L.",
+    location: "Austin, TX",
+    helper: "Maria — House Cleaner",
+    rating: 5,
+    review:
+      "Maria is a lifesaver. My home has never looked this clean, and she always shows up right on time. I trust her completely with my keys.",
+  },
+  {
+    id: "t2",
+    name: "James & Priya R.",
+    location: "Seattle, WA",
+    helper: "Priya — Home Cook",
+    rating: 5,
+    review:
+      "Priya prepares delicious, healthy meals for our whole family. She respects our dietary needs and leaves the kitchen spotless every time.",
+  },
+  {
+    id: "t3",
+    name: "Monica T.",
+    location: "Denver, CO",
+    helper: "Emma — Nanny",
+    rating: 4,
+    review:
+      "Emma is wonderful with our two kids. She's patient, creative, and always sends us updates. A true peace of mind for working parents.",
+  },
+  {
+    id: "t4",
+    name: "David K.",
+    location: "Phoenix, AZ",
+    helper: "David — Gardener",
+    rating: 5,
+    review:
+      "Our yard went from embarrassing to the best on the block. David is knowledgeable, hardworking, and uses eco-friendly products.",
+  },
+];
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5" aria-label={`Rated ${rating} out of 5 stars`}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg
+          key={i}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill={i < rating ? "currentColor" : "none"}
+          stroke="currentColor"
+          strokeWidth={i < rating ? 0 : 2}
+          className={`h-4 w-4 ${i < rating ? "text-amber-400" : "text-charcoal/20"}`}
+          aria-hidden="true"
+        >
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+function TestimonialsSection() {
+  return (
+    <section id="testimonials" className="bg-cream px-6 py-24 md:px-10">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-terracotta">
+              Customer Reviews
+            </p>
+            <h2
+              className="text-6xl leading-[0.9] tracking-tight text-charcoal md:text-7xl lg:text-8xl"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              HAPPY
+              <br />
+              HOMES.
+            </h2>
+          </div>
+          <p className="max-w-sm text-muted-foreground">
+            Real reviews from real families who found trusted help through Helpers.
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {testimonials.map((t) => (
+            <article
+              key={t.id}
+              className="flex flex-col rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:shadow-lg"
+            >
+              <StarRating rating={t.rating} />
+              <p className="mt-4 flex-1 text-sm leading-relaxed text-foreground">
+                "{t.review}"
+              </p>
+              <div className="mt-6 border-t border-border pt-4">
+                <p className="font-semibold text-charcoal">{t.name}</p>
+                <p className="text-xs text-muted-foreground">{t.location}</p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-sage">
+                  {t.helper}
+                </p>
+              </div>
+            </article>
           ))}
         </div>
       </div>
