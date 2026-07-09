@@ -13,6 +13,7 @@ const navLinks = [
   { label: "Helpers", target: "helpers" },
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
+  { label: "FAQ", target: "faq" },
   { label: "Hiring Tips", target: "tips" },
   { label: "Contact", target: "contact" },
 ];
