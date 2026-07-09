@@ -14,6 +14,7 @@ const navLinks = [
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
   { label: "FAQ", target: "faq" },
+  { label: "Membership", target: "membership" },
   { label: "Hiring Tips", target: "tips" },
   { label: "Contact", target: "contact" },
 ];
