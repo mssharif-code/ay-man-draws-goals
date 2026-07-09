@@ -187,6 +187,7 @@ function Index() {
       <HelpersSection />
       <ResponsibilitiesSection />
       <TestimonialsSection />
+      <FaqSection />
       <TipsSection />
       <ContactSection />
     </div>
