@@ -1,18 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import heroHelpers from "@/assets/hero-helpers.jpg";
-import helperCleaner from "@/assets/helper-cleaner.jpg";
-import helperCook from "@/assets/helper-cook.jpg";
-import helperNanny from "@/assets/helper-nanny.jpg";
-import helperGardener from "@/assets/helper-gardener.jpg";
-import helperHandyman from "@/assets/helper-handyman.jpg";
-import helperLaundry from "@/assets/helper-laundry.jpg";
-import helperPetcare from "@/assets/helper-petcare.jpg";
-import helperEldercare from "@/assets/helper-eldercare.jpg";
+import { helpers, type Helper } from "@/data/helpers";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
+
 
 const navLinks = [
   { label: "Helpers", target: "helpers" },
