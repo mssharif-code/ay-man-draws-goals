@@ -184,7 +184,11 @@ function HelpersSection() {
 
 function HelperCard({ helper }: { helper: Helper }) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-md transition hover:shadow-xl">
+    <Link
+      to="/helpers/$helperId"
+      params={{ helperId: helper.id }}
+      className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-md transition hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-terracotta focus:ring-offset-2"
+    >
       <div className="relative aspect-square overflow-hidden">
         <img
           src={helper.image}
@@ -201,6 +205,9 @@ function HelperCard({ helper }: { helper: Helper }) {
           </p>
           <p className="text-xs font-semibold uppercase tracking-widest opacity-90">{helper.role}</p>
         </div>
+        <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-charcoal opacity-0 transition group-hover:opacity-100">
+          View profile →
+        </span>
       </div>
 
       <div className="flex flex-1 flex-col p-6">
@@ -233,7 +240,7 @@ function HelperCard({ helper }: { helper: Helper }) {
             Required skills
           </p>
           <div className="flex flex-wrap gap-2">
-            {helper.skills.map((s) => (
+            {helper.skills.slice(0, 4).map((s) => (
               <span
                 key={s}
                 className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-charcoal/80"
@@ -243,10 +250,15 @@ function HelperCard({ helper }: { helper: Helper }) {
             ))}
           </div>
         </div>
+
+        <span className="mt-5 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-terracotta">
+          View full profile <span aria-hidden>→</span>
+        </span>
       </div>
-    </article>
+    </Link>
   );
 }
+
 
 function ResponsibilitiesSection() {
   return (
