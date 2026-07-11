@@ -70,7 +70,7 @@ function HelperError({ error }: { error: Error }) {
 }
 
 function HelperDetail() {
-  const { helper } = Route.useLoaderData();
+  const { helper } = Route.useLoaderData() as { helper: Helper };
 
   return (
     <div className="min-h-screen bg-background">
