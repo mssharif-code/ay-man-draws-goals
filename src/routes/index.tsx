@@ -576,6 +576,42 @@ const testimonials = [
     review:
       "Our yard went from embarrassing to the best on the block. David is knowledgeable, hardworking, and uses eco-friendly products.",
   },
+  {
+    id: "t5",
+    name: "Rachel M.",
+    location: "Chicago, IL",
+    helper: "Luis — Handyman",
+    rating: 5,
+    review:
+      "Luis fixed our leaky faucet and assembled a bookshelf in one visit. He was polite, fast, and cleaned up after himself. Highly recommend!",
+  },
+  {
+    id: "t6",
+    name: "Brian S.",
+    location: "San Diego, CA",
+    helper: "Aisha — Laundry & Ironing",
+    rating: 5,
+    review:
+      "Aisha makes our laundry feel like a luxury service. Everything is folded perfectly, and my shirts come back crisp and ready to wear.",
+  },
+  {
+    id: "t7",
+    name: "Linda P.",
+    location: "Portland, OR",
+    helper: "Ryan — Pet Care Helper",
+    rating: 5,
+    review:
+      "Ryan is amazing with our golden retriever. He sends photos from every walk and always follows our feeding schedule. Our dog loves him!",
+  },
+  {
+    id: "t8",
+    name: "The Garcia Family",
+    location: "Miami, FL",
+    helper: "Sofia — Elder Care Companion",
+    rating: 5,
+    review:
+      "Sofia has brought so much comfort to our mother. She is gentle, attentive, and keeps us updated. We finally have peace of mind.",
+  },
 ];
 
 function StarRating({ rating }: { rating: number }) {
