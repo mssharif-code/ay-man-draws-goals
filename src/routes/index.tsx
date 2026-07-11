@@ -701,19 +701,7 @@ function MembershipSection() {
               ))}
             </ul>
 
-            <a
-              href="#contact"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="mt-8 inline-block w-full rounded-xl bg-white py-4 text-center text-sm font-bold uppercase tracking-widest text-sage transition hover:bg-cream"
-            >
-              Become a Member
-            </a>
-            <p className="mt-3 text-center text-xs text-white/60">
-              No fees. Cancel anytime. Open to all returning customers.
-            </p>
+            <MembershipForm />
           </div>
         </div>
       </div>
