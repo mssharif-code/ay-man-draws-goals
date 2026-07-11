@@ -5,6 +5,10 @@ import helperCleaner from "@/assets/helper-cleaner.jpg";
 import helperCook from "@/assets/helper-cook.jpg";
 import helperNanny from "@/assets/helper-nanny.jpg";
 import helperGardener from "@/assets/helper-gardener.jpg";
+import helperHandyman from "@/assets/helper-handyman.jpg";
+import helperLaundry from "@/assets/helper-laundry.jpg";
+import helperPetcare from "@/assets/helper-petcare.jpg";
+import helperEldercare from "@/assets/helper-eldercare.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -110,6 +114,86 @@ const helpers: Helper[] = [
       "Tool safety",
       "Physical stamina",
       "Eco-friendly practices",
+    ],
+  },
+  {
+    id: "h5",
+    name: "Luis",
+    role: "Handyman",
+    image: helperHandyman,
+    rateMin: 30,
+    rateMax: 45,
+    responsibilities: [
+      "Minor plumbing and electrical fixes",
+      "Furniture assembly and wall mounting",
+      "Door, lock, and window repairs",
+      "Preventive home maintenance checks",
+    ],
+    skills: [
+      "General repair expertise",
+      "Tool proficiency",
+      "Problem-solving",
+      "Reliable and punctual",
+    ],
+  },
+  {
+    id: "h6",
+    name: "Aisha",
+    role: "Laundry & Ironing",
+    image: helperLaundry,
+    rateMin: 18,
+    rateMax: 26,
+    responsibilities: [
+      "Washing, drying, and folding clothes",
+      "Ironing shirts, linens, and delicate fabrics",
+      "Sorting laundry by color and fabric type",
+      "Maintaining washer and dryer cleanliness",
+    ],
+    skills: [
+      "Fabric care knowledge",
+      "Stain treatment techniques",
+      "Organization and efficiency",
+      "Gentle handling of garments",
+    ],
+  },
+  {
+    id: "h7",
+    name: "Ryan",
+    role: "Pet Care Helper",
+    image: helperPetcare,
+    rateMin: 20,
+    rateMax: 28,
+    responsibilities: [
+      "Dog walking and outdoor playtime",
+      "Feeding pets on schedule",
+      "Litter box and pet area cleaning",
+      "Administering basic medications if needed",
+    ],
+    skills: [
+      "Animal handling experience",
+      "Recognizing pet behavior cues",
+      "First aid for pets",
+      "Trustworthy with home access",
+    ],
+  },
+  {
+    id: "h8",
+    name: "Sofia",
+    role: "Elder Care Companion",
+    image: helperEldercare,
+    rateMin: 24,
+    rateMax: 34,
+    responsibilities: [
+      "Companionship and conversation",
+      "Medication reminders",
+      "Light assistance with mobility",
+      "Meal preparation and errands",
+    ],
+    skills: [
+      "Patient and empathetic nature",
+      "CPR and first aid certified",
+      "Clear communication with families",
+      "Experience with senior care",
     ],
   },
 ];
