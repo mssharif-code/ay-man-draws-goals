@@ -5,6 +5,10 @@ import helperCleaner from "@/assets/helper-cleaner.jpg";
 import helperCook from "@/assets/helper-cook.jpg";
 import helperNanny from "@/assets/helper-nanny.jpg";
 import helperGardener from "@/assets/helper-gardener.jpg";
+import helperHandyman from "@/assets/helper-handyman.jpg";
+import helperLaundry from "@/assets/helper-laundry.jpg";
+import helperPetcare from "@/assets/helper-petcare.jpg";
+import helperEldercare from "@/assets/helper-eldercare.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -110,6 +114,86 @@ const helpers: Helper[] = [
       "Tool safety",
       "Physical stamina",
       "Eco-friendly practices",
+    ],
+  },
+  {
+    id: "h5",
+    name: "Luis",
+    role: "Handyman",
+    image: helperHandyman,
+    rateMin: 30,
+    rateMax: 45,
+    responsibilities: [
+      "Minor plumbing and electrical fixes",
+      "Furniture assembly and wall mounting",
+      "Door, lock, and window repairs",
+      "Preventive home maintenance checks",
+    ],
+    skills: [
+      "General repair expertise",
+      "Tool proficiency",
+      "Problem-solving",
+      "Reliable and punctual",
+    ],
+  },
+  {
+    id: "h6",
+    name: "Aisha",
+    role: "Laundry & Ironing",
+    image: helperLaundry,
+    rateMin: 18,
+    rateMax: 26,
+    responsibilities: [
+      "Washing, drying, and folding clothes",
+      "Ironing shirts, linens, and delicate fabrics",
+      "Sorting laundry by color and fabric type",
+      "Maintaining washer and dryer cleanliness",
+    ],
+    skills: [
+      "Fabric care knowledge",
+      "Stain treatment techniques",
+      "Organization and efficiency",
+      "Gentle handling of garments",
+    ],
+  },
+  {
+    id: "h7",
+    name: "Ryan",
+    role: "Pet Care Helper",
+    image: helperPetcare,
+    rateMin: 20,
+    rateMax: 28,
+    responsibilities: [
+      "Dog walking and outdoor playtime",
+      "Feeding pets on schedule",
+      "Litter box and pet area cleaning",
+      "Administering basic medications if needed",
+    ],
+    skills: [
+      "Animal handling experience",
+      "Recognizing pet behavior cues",
+      "First aid for pets",
+      "Trustworthy with home access",
+    ],
+  },
+  {
+    id: "h8",
+    name: "Sofia",
+    role: "Elder Care Companion",
+    image: helperEldercare,
+    rateMin: 24,
+    rateMax: 34,
+    responsibilities: [
+      "Companionship and conversation",
+      "Medication reminders",
+      "Light assistance with mobility",
+      "Meal preparation and errands",
+    ],
+    skills: [
+      "Patient and empathetic nature",
+      "CPR and first aid certified",
+      "Clear communication with families",
+      "Experience with senior care",
     ],
   },
 ];
@@ -491,6 +575,42 @@ const testimonials = [
     rating: 5,
     review:
       "Our yard went from embarrassing to the best on the block. David is knowledgeable, hardworking, and uses eco-friendly products.",
+  },
+  {
+    id: "t5",
+    name: "Rachel M.",
+    location: "Chicago, IL",
+    helper: "Luis — Handyman",
+    rating: 5,
+    review:
+      "Luis fixed our leaky faucet and assembled a bookshelf in one visit. He was polite, fast, and cleaned up after himself. Highly recommend!",
+  },
+  {
+    id: "t6",
+    name: "Brian S.",
+    location: "San Diego, CA",
+    helper: "Aisha — Laundry & Ironing",
+    rating: 5,
+    review:
+      "Aisha makes our laundry feel like a luxury service. Everything is folded perfectly, and my shirts come back crisp and ready to wear.",
+  },
+  {
+    id: "t7",
+    name: "Linda P.",
+    location: "Portland, OR",
+    helper: "Ryan — Pet Care Helper",
+    rating: 5,
+    review:
+      "Ryan is amazing with our golden retriever. He sends photos from every walk and always follows our feeding schedule. Our dog loves him!",
+  },
+  {
+    id: "t8",
+    name: "The Garcia Family",
+    location: "Miami, FL",
+    helper: "Sofia — Elder Care Companion",
+    rating: 5,
+    review:
+      "Sofia has brought so much comfort to our mother. She is gentle, attentive, and keeps us updated. We finally have peace of mind.",
   },
 ];
 
