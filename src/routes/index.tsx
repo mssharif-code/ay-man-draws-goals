@@ -1,18 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import heroHelpers from "@/assets/hero-helpers.jpg";
-import helperCleaner from "@/assets/helper-cleaner.jpg";
-import helperCook from "@/assets/helper-cook.jpg";
-import helperNanny from "@/assets/helper-nanny.jpg";
-import helperGardener from "@/assets/helper-gardener.jpg";
-import helperHandyman from "@/assets/helper-handyman.jpg";
-import helperLaundry from "@/assets/helper-laundry.jpg";
-import helperPetcare from "@/assets/helper-petcare.jpg";
-import helperEldercare from "@/assets/helper-eldercare.jpg";
+import { helpers, type Helper } from "@/data/helpers";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
+
 
 const navLinks = [
   { label: "Helpers", target: "helpers" },
@@ -24,179 +18,6 @@ const navLinks = [
   { label: "Contact", target: "contact" },
 ];
 
-type Helper = {
-  id: string;
-  name: string;
-  role: string;
-  image: string;
-  rateMin: number;
-  rateMax: number;
-  responsibilities: string[];
-  skills: string[];
-};
-
-const helpers: Helper[] = [
-  {
-    id: "h1",
-    name: "Maria",
-    role: "House Cleaner",
-    image: helperCleaner,
-    rateMin: 22,
-    rateMax: 28,
-    responsibilities: [
-      "Dusting, vacuuming, and mopping all rooms",
-      "Kitchen and bathroom deep cleaning",
-      "Laundry folding and bed making",
-      "Organizing clutter and taking out trash",
-    ],
-    skills: [
-      "Attention to detail",
-      "Knowledge of safe cleaning products",
-      "Time management",
-      "Trustworthy with keys",
-    ],
-  },
-  {
-    id: "h2",
-    name: "Priya",
-    role: "Home Cook",
-    image: helperCook,
-    rateMin: 25,
-    rateMax: 35,
-    responsibilities: [
-      "Meal planning and grocery lists",
-      "Cooking fresh daily meals",
-      "Kitchen cleanup after cooking",
-      "Accommodating dietary restrictions",
-    ],
-    skills: [
-      "Food safety and hygiene",
-      "Menu variety",
-      "Budget-friendly shopping",
-      "Punctual meal delivery",
-    ],
-  },
-  {
-    id: "h3",
-    name: "Emma",
-    role: "Nanny",
-    image: helperNanny,
-    rateMin: 20,
-    rateMax: 30,
-    responsibilities: [
-      "Child supervision and playtime",
-      "Homework help and reading",
-      "Meal prep for kids",
-      "Light child-related tidying",
-    ],
-    skills: [
-      "First aid / CPR certified",
-      "Patient and nurturing",
-      "Creative activities",
-      "Reliable communication",
-    ],
-  },
-  {
-    id: "h4",
-    name: "David",
-    role: "Gardener",
-    image: helperGardener,
-    rateMin: 23,
-    rateMax: 32,
-    responsibilities: [
-      "Lawn mowing and hedge trimming",
-      "Planting, weeding, and fertilizing",
-      "Seasonal yard cleanup",
-      "Watering schedules and pest checks",
-    ],
-    skills: [
-      "Plant and soil knowledge",
-      "Tool safety",
-      "Physical stamina",
-      "Eco-friendly practices",
-    ],
-  },
-  {
-    id: "h5",
-    name: "Luis",
-    role: "Handyman",
-    image: helperHandyman,
-    rateMin: 30,
-    rateMax: 45,
-    responsibilities: [
-      "Minor plumbing and electrical fixes",
-      "Furniture assembly and wall mounting",
-      "Door, lock, and window repairs",
-      "Preventive home maintenance checks",
-    ],
-    skills: [
-      "General repair expertise",
-      "Tool proficiency",
-      "Problem-solving",
-      "Reliable and punctual",
-    ],
-  },
-  {
-    id: "h6",
-    name: "Aisha",
-    role: "Laundry & Ironing",
-    image: helperLaundry,
-    rateMin: 18,
-    rateMax: 26,
-    responsibilities: [
-      "Washing, drying, and folding clothes",
-      "Ironing shirts, linens, and delicate fabrics",
-      "Sorting laundry by color and fabric type",
-      "Maintaining washer and dryer cleanliness",
-    ],
-    skills: [
-      "Fabric care knowledge",
-      "Stain treatment techniques",
-      "Organization and efficiency",
-      "Gentle handling of garments",
-    ],
-  },
-  {
-    id: "h7",
-    name: "Ryan",
-    role: "Pet Care Helper",
-    image: helperPetcare,
-    rateMin: 20,
-    rateMax: 28,
-    responsibilities: [
-      "Dog walking and outdoor playtime",
-      "Feeding pets on schedule",
-      "Litter box and pet area cleaning",
-      "Administering basic medications if needed",
-    ],
-    skills: [
-      "Animal handling experience",
-      "Recognizing pet behavior cues",
-      "First aid for pets",
-      "Trustworthy with home access",
-    ],
-  },
-  {
-    id: "h8",
-    name: "Sofia",
-    role: "Elder Care Companion",
-    image: helperEldercare,
-    rateMin: 24,
-    rateMax: 34,
-    responsibilities: [
-      "Companionship and conversation",
-      "Medication reminders",
-      "Light assistance with mobility",
-      "Meal preparation and errands",
-    ],
-    skills: [
-      "Patient and empathetic nature",
-      "CPR and first aid certified",
-      "Clear communication with families",
-      "Experience with senior care",
-    ],
-  },
-];
 
 const tips = [
   {
@@ -363,7 +184,11 @@ function HelpersSection() {
 
 function HelperCard({ helper }: { helper: Helper }) {
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-md transition hover:shadow-xl">
+    <Link
+      to="/helpers/$helperId"
+      params={{ helperId: helper.id }}
+      className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-md transition hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-terracotta focus:ring-offset-2"
+    >
       <div className="relative aspect-square overflow-hidden">
         <img
           src={helper.image}
@@ -380,6 +205,9 @@ function HelperCard({ helper }: { helper: Helper }) {
           </p>
           <p className="text-xs font-semibold uppercase tracking-widest opacity-90">{helper.role}</p>
         </div>
+        <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-charcoal opacity-0 transition group-hover:opacity-100">
+          View profile →
+        </span>
       </div>
 
       <div className="flex flex-1 flex-col p-6">
@@ -412,7 +240,7 @@ function HelperCard({ helper }: { helper: Helper }) {
             Required skills
           </p>
           <div className="flex flex-wrap gap-2">
-            {helper.skills.map((s) => (
+            {helper.skills.slice(0, 4).map((s) => (
               <span
                 key={s}
                 className="rounded-full bg-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-charcoal/80"
@@ -422,10 +250,15 @@ function HelperCard({ helper }: { helper: Helper }) {
             ))}
           </div>
         </div>
+
+        <span className="mt-5 inline-flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-terracotta">
+          View full profile <span aria-hidden>→</span>
+        </span>
       </div>
-    </article>
+    </Link>
   );
 }
+
 
 function ResponsibilitiesSection() {
   return (

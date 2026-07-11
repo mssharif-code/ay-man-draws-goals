@@ -10,33 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HelpersHelperIdRouteImport } from './routes/helpers.$helperId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HelpersHelperIdRoute = HelpersHelperIdRouteImport.update({
+  id: '/helpers/$helperId',
+  path: '/helpers/$helperId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/helpers/$helperId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/helpers/$helperId'
+  id: '__root__' | '/' | '/helpers/$helperId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HelpersHelperIdRoute: typeof HelpersHelperIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +58,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/helpers/$helperId': {
+      id: '/helpers/$helperId'
+      path: '/helpers/$helperId'
+      fullPath: '/helpers/$helperId'
+      preLoaderRoute: typeof HelpersHelperIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HelpersHelperIdRoute: HelpersHelperIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
