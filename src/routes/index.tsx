@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import heroHelpers from "@/assets/hero-helpers.jpg";
 import helperCleaner from "@/assets/helper-cleaner.jpg";
 import helperCook from "@/assets/helper-cook.jpg";
@@ -700,23 +701,131 @@ function MembershipSection() {
               ))}
             </ul>
 
-            <a
-              href="#contact"
-              onClick={(e) => {
-                e.preventDefault();
-                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="mt-8 inline-block w-full rounded-xl bg-white py-4 text-center text-sm font-bold uppercase tracking-widest text-sage transition hover:bg-cream"
-            >
-              Become a Member
-            </a>
-            <p className="mt-3 text-center text-xs text-white/60">
-              No fees. Cancel anytime. Open to all returning customers.
-            </p>
+            <MembershipForm />
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+const serviceAreas = [
+  "Downtown",
+  "North Side",
+  "South Side",
+  "East End",
+  "West End",
+  "Suburbs",
+];
+
+function MembershipForm() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [area, setArea] = useState("");
+  const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    if (!trimmedName || trimmedName.length > 100) {
+      setError("Please enter a valid name (1-100 characters).");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail) || trimmedEmail.length > 255) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (!area) {
+      setError("Please select your preferred service area.");
+      return;
+    }
+    setError("");
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return (
+      <div className="mt-8 rounded-xl bg-white/15 p-6 text-center">
+        <p className="text-2xl" style={{ fontFamily: "var(--font-display)" }}>
+          WELCOME TO THE CLUB, {name.trim().toUpperCase()}!
+        </p>
+        <p className="mt-2 text-sm text-white/80">
+          Your 15% discount is now active. We'll email {email.trim()} with next steps for {area}.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-8 space-y-3">
+      <div>
+        <label htmlFor="member-name" className="mb-1 block text-xs font-bold uppercase tracking-widest text-white/70">
+          Full Name
+        </label>
+        <input
+          id="member-name"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          maxLength={100}
+          required
+          placeholder="Jane Doe"
+          className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/50 outline-none transition focus:border-terracotta focus:bg-white/20"
+        />
+      </div>
+      <div>
+        <label htmlFor="member-email" className="mb-1 block text-xs font-bold uppercase tracking-widest text-white/70">
+          Email
+        </label>
+        <input
+          id="member-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          maxLength={255}
+          required
+          placeholder="jane@example.com"
+          className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white placeholder-white/50 outline-none transition focus:border-terracotta focus:bg-white/20"
+        />
+      </div>
+      <div>
+        <label htmlFor="member-area" className="mb-1 block text-xs font-bold uppercase tracking-widest text-white/70">
+          Preferred Service Area
+        </label>
+        <select
+          id="member-area"
+          value={area}
+          onChange={(e) => setArea(e.target.value)}
+          required
+          className="w-full rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm text-white outline-none transition focus:border-terracotta focus:bg-white/20"
+        >
+          <option value="" className="text-charcoal">Select an area…</option>
+          {serviceAreas.map((a) => (
+            <option key={a} value={a} className="text-charcoal">
+              {a}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {error && (
+        <p className="text-sm text-terracotta" role="alert">
+          {error}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        className="mt-2 w-full rounded-xl bg-white py-4 text-center text-sm font-bold uppercase tracking-widest text-sage transition hover:bg-cream"
+      >
+        Become a Member
+      </button>
+      <p className="text-center text-xs text-white/60">
+        No fees. Cancel anytime. Open to all returning customers.
+      </p>
+    </form>
   );
 }
 
