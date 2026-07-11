@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { helpers, getHelperById } from "@/data/helpers";
+import { helpers, getHelperById, type Helper } from "@/data/helpers";
 
 export const Route = createFileRoute("/helpers/$helperId")({
   loader: ({ params }) => {
