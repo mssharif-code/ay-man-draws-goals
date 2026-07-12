@@ -183,12 +183,21 @@ function HelpersSection() {
 }
 
 function HelperCard({ helper }: { helper: Helper }) {
+  const [isGlowing, setIsGlowing] = useState(false);
+
   return (
     <Link
       to="/helpers/$helperId"
       params={{ helperId: helper.id }}
-      className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-md transition hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-terracotta focus:ring-offset-2"
+      onClick={() => {
+        setIsGlowing(true);
+        setTimeout(() => setIsGlowing(false), 700);
+      }}
+      className={`group flex flex-col overflow-hidden rounded-2xl bg-card shadow-md transition hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-terracotta focus:ring-offset-2 ${
+        isGlowing ? "animate-green-glow" : ""
+      }`}
     >
+
       <div className="relative aspect-square overflow-hidden">
         <img
           src={helper.image}
