@@ -94,6 +94,7 @@ function Index() {
     <div id="top" className="min-h-screen bg-background">
       <StickyNav />
       <Hero />
+      <MatchingSection />
       <HelpersSection />
       <ResponsibilitiesSection />
       <TestimonialsSection />
