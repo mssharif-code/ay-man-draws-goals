@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
+
+
 import heroHelpers from "@/assets/hero-helpers.jpg";
 import { helpers, type Helper } from "@/data/helpers";
 
@@ -183,12 +185,27 @@ function HelpersSection() {
 }
 
 function HelperCard({ helper }: { helper: Helper }) {
+  const linkRef = useRef<HTMLAnchorElement>(null);
+
+  const triggerGlow = () => {
+    const el = linkRef.current;
+    if (!el) return;
+    el.classList.remove("animate-green-glow");
+    void el.offsetWidth;
+    el.classList.add("animate-green-glow");
+    setTimeout(() => el.classList.remove("animate-green-glow"), 600);
+  };
+
   return (
     <Link
+      ref={linkRef}
       to="/helpers/$helperId"
       params={{ helperId: helper.id }}
+      onPointerDown={triggerGlow}
       className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-md transition hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-terracotta focus:ring-offset-2"
     >
+
+
       <div className="relative aspect-square overflow-hidden">
         <img
           src={helper.image}
