@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+
 
 import heroHelpers from "@/assets/hero-helpers.jpg";
 import { helpers, type Helper } from "@/data/helpers";
