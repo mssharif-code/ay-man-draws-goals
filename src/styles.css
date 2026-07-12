@@ -97,3 +97,20 @@
     font-family: var(--font-body);
   }
 }
+
+@keyframes green-glow {
+  0% {
+    box-shadow: 0 0 0 0 var(--color-sage);
+  }
+  70% {
+    box-shadow: 0 0 0 18px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.animate-green-glow {
+  animation: green-glow 0.7s ease-out;
+}
+
