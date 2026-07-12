@@ -11,6 +11,7 @@ export const Route = createFileRoute("/")({
 
 
 const navLinks = [
+  { label: "Match", target: "match" },
   { label: "Helpers", target: "helpers" },
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
