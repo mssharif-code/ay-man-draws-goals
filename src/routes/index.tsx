@@ -11,6 +11,7 @@ export const Route = createFileRoute("/")({
 
 
 const navLinks = [
+  { label: "Match", target: "match" },
   { label: "Helpers", target: "helpers" },
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
@@ -93,6 +94,7 @@ function Index() {
     <div id="top" className="min-h-screen bg-background">
       <StickyNav />
       <Hero />
+      <MatchingSection />
       <HelpersSection />
       <ResponsibilitiesSection />
       <TestimonialsSection />
@@ -149,6 +151,323 @@ function Hero() {
     </section>
   );
 }
+
+type QuizAnswers = {
+  familySize: string;
+  kids: string;
+  pets: string;
+  home: string;
+  schedule: string;
+  budget: string;
+  language: string;
+  cooking: string;
+  elderly: string;
+  driver: string;
+};
+
+const initialAnswers: QuizAnswers = {
+  familySize: "",
+  kids: "",
+  pets: "",
+  home: "",
+  schedule: "",
+  budget: "",
+  language: "",
+  cooking: "",
+  elderly: "",
+  driver: "",
+};
+
+const quizQuestions: {
+  key: keyof QuizAnswers;
+  label: string;
+  options: { value: string; label: string }[];
+}[] = [
+  {
+    key: "familySize",
+    label: "How many people live in your home?",
+    options: [
+      { value: "1-2", label: "1–2" },
+      { value: "3-4", label: "3–4" },
+      { value: "5+", label: "5 or more" },
+    ],
+  },
+  {
+    key: "kids",
+    label: "Do you have kids?",
+    options: [
+      { value: "none", label: "No kids" },
+      { value: "young", label: "Yes, under 6" },
+      { value: "school", label: "Yes, school age" },
+    ],
+  },
+  {
+    key: "pets",
+    label: "Any pets at home?",
+    options: [
+      { value: "none", label: "No pets" },
+      { value: "dog", label: "Dog(s)" },
+      { value: "cat", label: "Cat(s)" },
+      { value: "other", label: "Other" },
+    ],
+  },
+  {
+    key: "home",
+    label: "What type of home?",
+    options: [
+      { value: "apartment", label: "Apartment" },
+      { value: "villa", label: "Villa / house" },
+    ],
+  },
+  {
+    key: "schedule",
+    label: "Full-time or part-time help?",
+    options: [
+      { value: "full", label: "Full-time" },
+      { value: "part", label: "Part-time" },
+      { value: "oneoff", label: "One-off / occasional" },
+    ],
+  },
+  {
+    key: "budget",
+    label: "Hourly budget?",
+    options: [
+      { value: "low", label: "Under $25" },
+      { value: "mid", label: "$25–$35" },
+      { value: "high", label: "$35+" },
+    ],
+  },
+  {
+    key: "language",
+    label: "Preferred language?",
+    options: [
+      { value: "English", label: "English" },
+      { value: "Spanish", label: "Spanish" },
+      { value: "French", label: "French" },
+      { value: "Hindi", label: "Hindi" },
+      { value: "Arabic", label: "Arabic" },
+      { value: "any", label: "No preference" },
+    ],
+  },
+  {
+    key: "cooking",
+    label: "Need cooking help?",
+    options: [
+      { value: "yes", label: "Yes, daily meals" },
+      { value: "sometimes", label: "Occasionally" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    key: "elderly",
+    label: "Elderly care needed?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+  {
+    key: "driver",
+    label: "Driver required?",
+    options: [
+      { value: "yes", label: "Yes" },
+      { value: "no", label: "No" },
+    ],
+  },
+];
+
+function scoreHelper(helper: Helper, a: QuizAnswers): number {
+  let score = 0;
+  const role = helper.role.toLowerCase();
+
+  if (a.kids !== "" && a.kids !== "none" && role.includes("nann")) score += 5;
+  if (a.pets !== "" && a.pets !== "none" && role.includes("pet")) score += 5;
+  if (a.cooking === "yes" && role.includes("cook")) score += 5;
+  if (a.cooking === "sometimes" && role.includes("cook")) score += 2;
+  if (a.elderly === "yes" && role.includes("elder")) score += 6;
+  if (a.home === "villa" && (role.includes("garden") || role.includes("handy"))) score += 3;
+  if (a.home === "apartment" && (role.includes("clean") || role.includes("laundry"))) score += 2;
+  if (a.familySize === "5+" && (role.includes("clean") || role.includes("cook"))) score += 2;
+  if (a.schedule === "full" && helper.availability.some((d) => /Mon\s*[–-]\s*Fri/i.test(d.day))) score += 1;
+
+  if (a.budget === "low" && helper.rateMax <= 26) score += 3;
+  else if (a.budget === "mid" && helper.rateMin >= 22 && helper.rateMax <= 35) score += 3;
+  else if (a.budget === "high" && helper.rateMax >= 32) score += 3;
+  else if (a.budget !== "") score -= 1;
+
+  if (a.language && a.language !== "any") {
+    if (helper.languages.includes(a.language)) score += 3;
+  }
+
+  if (a.driver === "yes") {
+    const drives = /transport|errand|grocery|drive/i.test(
+      [...helper.services, ...helper.responsibilities].join(" "),
+    );
+    if (drives) score += 3;
+  }
+
+  return score;
+}
+
+function MatchingSection() {
+  const [answers, setAnswers] = useState<QuizAnswers>(initialAnswers);
+  const [submitted, setSubmitted] = useState(false);
+
+  const allAnswered = quizQuestions.every((q) => answers[q.key] !== "");
+
+  const matches = submitted
+    ? [...helpers]
+        .map((h) => ({ helper: h, score: scoreHelper(h, answers) }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+    : [];
+
+  const reset = () => {
+    setAnswers(initialAnswers);
+    setSubmitted(false);
+  };
+
+  return (
+    <section id="match" className="bg-cream px-6 py-24 md:px-10">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-12 text-center">
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-terracotta">
+            AI Helper Matching
+          </p>
+          <h2
+            className="text-6xl leading-[0.9] tracking-tight text-charcoal md:text-7xl"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            FIND YOUR
+            <br />
+            PERFECT MATCH.
+          </h2>
+          <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
+            Answer 10 quick questions and we'll match you with the helpers who fit
+            your household best.
+          </p>
+        </div>
+
+        {!submitted ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (allAnswered) setSubmitted(true);
+            }}
+            className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-10"
+          >
+            <div className="grid gap-8 md:grid-cols-2">
+              {quizQuestions.map((q) => (
+                <fieldset key={q.key} className="space-y-3">
+                  <legend className="text-sm font-bold uppercase tracking-widest text-charcoal">
+                    {q.label}
+                  </legend>
+                  <div className="flex flex-wrap gap-2">
+                    {q.options.map((opt) => {
+                      const selected = answers[q.key] === opt.value;
+                      return (
+                        <button
+                          type="button"
+                          key={opt.value}
+                          onClick={() =>
+                            setAnswers((prev) => ({ ...prev, [q.key]: opt.value }))
+                          }
+                          className={`rounded-full border px-4 py-2 text-sm transition ${
+                            selected
+                              ? "border-sage bg-sage text-white"
+                              : "border-charcoal/15 bg-background text-charcoal hover:border-sage/60"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ))}
+            </div>
+
+            <div className="mt-10 flex flex-wrap items-center justify-between gap-4">
+              <p className="text-xs text-muted-foreground">
+                {Object.values(answers).filter(Boolean).length} of {quizQuestions.length} answered
+              </p>
+              <button
+                type="submit"
+                disabled={!allAnswered}
+                className="rounded-lg bg-sage px-6 py-3 text-sm font-bold uppercase tracking-widest text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                See my matches →
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-10">
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+              <h3
+                className="text-4xl tracking-tight text-charcoal"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                Your top matches
+              </h3>
+              <button
+                type="button"
+                onClick={reset}
+                className="rounded-lg border border-charcoal/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-charcoal transition hover:bg-charcoal/5"
+              >
+                Retake quiz
+              </button>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {matches.map(({ helper, score }, i) => (
+                <Link
+                  key={helper.id}
+                  to="/helpers/$helperId"
+                  params={{ helperId: helper.id }}
+                  className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition hover:border-sage/50 hover:shadow-lg"
+                >
+                  <div className="relative aspect-square overflow-hidden">
+                    <img
+                      src={helper.image}
+                      alt={`${helper.name}, ${helper.role}`}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <span className="absolute left-3 top-3 rounded-full bg-sage px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+                      #{i + 1} match
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <p
+                      className="text-2xl tracking-tight text-charcoal"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      {helper.name}
+                    </p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-terracotta">
+                      {helper.role}
+                    </p>
+                    <p className="mt-3 text-sm text-muted-foreground">
+                      ${helper.rateMin}–${helper.rateMax}/hr · {helper.languages.join(", ")}
+                    </p>
+                    <p className="mt-3 text-xs text-sage">
+                      Compatibility score: {score}
+                    </p>
+                    <span className="mt-auto pt-4 text-xs font-bold uppercase tracking-widest text-sage">
+                      View profile →
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+
 
 function HelpersSection() {
   return (
