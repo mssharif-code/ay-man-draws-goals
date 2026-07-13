@@ -137,6 +137,45 @@ function Index() {
   );
 }
 
+function TrustSection() {
+  return (
+    <section id="trust" className="bg-cream px-6 py-24 md:px-10">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-14 max-w-2xl">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-sage">
+            Trust & verification
+          </p>
+          <h2
+            className="text-4xl font-semibold tracking-tight text-charcoal md:text-5xl"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Every helper, thoroughly vetted.
+          </h2>
+          <p className="mt-4 text-lg text-charcoal/70">
+            We handle the paperwork, the checks, and the safeguards — so you can hire with confidence.
+          </p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {trustServices.map((s) => (
+            <div
+              key={s.title}
+              className="rounded-2xl border border-charcoal/10 bg-white p-7 transition-shadow hover:shadow-lg"
+            >
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-sage/15 text-sage">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-charcoal">{s.title}</h3>
+              <p className="text-sm leading-relaxed text-charcoal/70">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Hero() {
   return (
     <section className="relative flex min-h-[92vh] items-end overflow-hidden">
