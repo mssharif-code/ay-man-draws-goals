@@ -744,9 +744,9 @@ function HelperCard({ helper }: { helper: Helper }) {
             Estimated rate
           </p>
           <p className="text-4xl tracking-tight text-sage" style={{ fontFamily: "var(--font-display)" }}>
-            ${helper.rateMin}–${helper.rateMax}
+            ₹{helper.rateMin}–₹{helper.rateMax}
           </p>
-          <p className="text-xs text-muted-foreground">per hour</p>
+          <p className="text-xs text-muted-foreground">per hour · {helper.city}, {helper.state} · {helper.nativeLanguage}</p>
         </div>
 
         <div className="mb-4">
