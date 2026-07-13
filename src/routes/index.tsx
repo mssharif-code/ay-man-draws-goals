@@ -361,9 +361,9 @@ function scoreHelper(helper: Helper, a: QuizAnswers): number {
   if (a.familySize === "5+" && (role.includes("clean") || role.includes("cook"))) score += 2;
   if (a.schedule === "full" && helper.availability.some((d) => /Mon\s*[–-]\s*Fri/i.test(d.day))) score += 1;
 
-  if (a.budget === "low" && helper.rateMax <= 26) score += 3;
-  else if (a.budget === "mid" && helper.rateMin >= 22 && helper.rateMax <= 35) score += 3;
-  else if (a.budget === "high" && helper.rateMax >= 32) score += 3;
+  if (a.budget === "low" && helper.rateMax <= 220) score += 3;
+  else if (a.budget === "mid" && helper.rateMin >= 180 && helper.rateMax <= 320) score += 3;
+  else if (a.budget === "high" && helper.rateMax >= 300) score += 3;
   else if (a.budget !== "") score -= 1;
 
   if (a.language && a.language !== "any") {
