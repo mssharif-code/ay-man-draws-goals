@@ -1048,7 +1048,7 @@ const faqs = [
   {
     question: "How much does a household helper cost per hour?",
     answer:
-      "Rates typically range from $20 to $35 per hour depending on the role, experience, and your location. Cleaners and nannies usually start around $20–$28/hr, while experienced cooks and specialized gardeners may charge up to $35/hr.",
+      "Rates typically range from ₹150 to ₹400 per hour depending on the role, experience, and your city. Cleaners and laundry help usually start around ₹150–₹260/hr, while experienced cooks, handymen and elder-care helpers can go up to ₹400/hr.",
   },
   {
     question: "Are the helpers background-checked?",
