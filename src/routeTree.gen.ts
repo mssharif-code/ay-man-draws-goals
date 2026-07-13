@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HelpersHelperIdRouteImport } from './routes/helpers.$helperId'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const HelpersHelperIdRoute = HelpersHelperIdRouteImport.update({
   path: '/helpers/$helperId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/api/chat': typeof ApiChatRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/api/chat': typeof ApiChatRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/api/chat': typeof ApiChatRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/helpers/$helperId'
+  fullPaths: '/' | '/api/chat' | '/helpers/$helperId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/helpers/$helperId'
-  id: '__root__' | '/' | '/helpers/$helperId'
+  to: '/' | '/api/chat' | '/helpers/$helperId'
+  id: '__root__' | '/' | '/api/chat' | '/helpers/$helperId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ApiChatRoute: typeof ApiChatRoute
   HelpersHelperIdRoute: typeof HelpersHelperIdRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpersHelperIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ApiChatRoute: ApiChatRoute,
   HelpersHelperIdRoute: HelpersHelperIdRoute,
 }
 export const routeTree = rootRouteImport
