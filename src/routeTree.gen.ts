@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HelpersHelperIdRouteImport } from './routes/helpers.$helperId'
+import { Route as BookHelperIdRouteImport } from './routes/book.$helperId'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const HelpersHelperIdRoute = HelpersHelperIdRouteImport.update({
   path: '/helpers/$helperId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookHelperIdRoute = BookHelperIdRouteImport.update({
+  id: '/book/$helperId',
+  path: '/book/$helperId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -31,32 +37,36 @@ const ApiChatRoute = ApiChatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/api/chat': typeof ApiChatRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
+  '/book/$helperId': typeof BookHelperIdRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/api/chat': typeof ApiChatRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
+  '/book/$helperId': typeof BookHelperIdRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/api/chat': typeof ApiChatRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
+  '/book/$helperId': typeof BookHelperIdRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/chat' | '/helpers/$helperId'
+  fullPaths: '/' | '/helpers/$helperId' | '/book/$helperId' | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/chat' | '/helpers/$helperId'
-  id: '__root__' | '/' | '/api/chat' | '/helpers/$helperId'
+  to: '/' | '/helpers/$helperId' | '/book/$helperId' | '/api/chat'
+  id: '__root__' | '/' | '/helpers/$helperId' | '/book/$helperId' | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ApiChatRoute: typeof ApiChatRoute
   HelpersHelperIdRoute: typeof HelpersHelperIdRoute
+  BookHelperIdRoute: typeof BookHelperIdRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HelpersHelperIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/book/$helperId': {
+      id: '/book/$helperId'
+      path: '/book/$helperId'
+      fullPath: '/book/$helperId'
+      preLoaderRoute: typeof BookHelperIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -87,8 +104,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ApiChatRoute: ApiChatRoute,
   HelpersHelperIdRoute: HelpersHelperIdRoute,
+  BookHelperIdRoute: BookHelperIdRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
