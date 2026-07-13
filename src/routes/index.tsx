@@ -657,10 +657,6 @@ function MatchChatBot() {
     </div>
   );
 }
-      </div>
-    </section>
-  );
-}
 
 
 
