@@ -845,7 +845,7 @@ function ResponsibilitiesSection() {
               </div>
 
               <p className="mt-6 text-3xl tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
-                ${h.rateMin}–${h.rateMax}<span className="text-sm font-normal opacity-70">/hr</span>
+                ₹{h.rateMin}–₹{h.rateMax}<span className="text-sm font-normal opacity-70">/hr</span>
               </p>
             </div>
           ))}
