@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 
 import heroHelpers from "@/assets/hero-helpers.jpg";
@@ -302,20 +302,21 @@ const quizQuestions: {
     key: "budget",
     label: "Hourly budget?",
     options: [
-      { value: "low", label: "Under $25" },
-      { value: "mid", label: "$25–$35" },
-      { value: "high", label: "$35+" },
+      { value: "low", label: "Under ₹200" },
+      { value: "mid", label: "₹200–₹300" },
+      { value: "high", label: "₹300+" },
     ],
   },
   {
     key: "language",
     label: "Preferred language?",
     options: [
-      { value: "English", label: "English" },
-      { value: "Spanish", label: "Spanish" },
-      { value: "French", label: "French" },
       { value: "Hindi", label: "Hindi" },
-      { value: "Arabic", label: "Arabic" },
+      { value: "English", label: "English" },
+      { value: "Tamil", label: "Tamil" },
+      { value: "Telugu", label: "Telugu" },
+      { value: "Bengali", label: "Bengali" },
+      { value: "Marathi", label: "Marathi" },
       { value: "any", label: "No preference" },
     ],
   },
@@ -360,9 +361,9 @@ function scoreHelper(helper: Helper, a: QuizAnswers): number {
   if (a.familySize === "5+" && (role.includes("clean") || role.includes("cook"))) score += 2;
   if (a.schedule === "full" && helper.availability.some((d) => /Mon\s*[–-]\s*Fri/i.test(d.day))) score += 1;
 
-  if (a.budget === "low" && helper.rateMax <= 26) score += 3;
-  else if (a.budget === "mid" && helper.rateMin >= 22 && helper.rateMax <= 35) score += 3;
-  else if (a.budget === "high" && helper.rateMax >= 32) score += 3;
+  if (a.budget === "low" && helper.rateMax <= 220) score += 3;
+  else if (a.budget === "mid" && helper.rateMin >= 180 && helper.rateMax <= 320) score += 3;
+  else if (a.budget === "high" && helper.rateMax >= 300) score += 3;
   else if (a.budget !== "") score -= 1;
 
   if (a.language && a.language !== "any") {
@@ -490,13 +491,11 @@ function MatchingSection() {
 
             <div className="grid gap-6 md:grid-cols-3">
               {matches.map(({ helper, score }, i) => (
-                <Link
+                <div
                   key={helper.id}
-                  to="/helpers/$helperId"
-                  params={{ helperId: helper.id }}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-background transition hover:border-sage/50 hover:shadow-lg"
                 >
-                  <div className="relative aspect-square overflow-hidden">
+                  <Link to="/helpers/$helperId" params={{ helperId: helper.id }} className="relative aspect-square overflow-hidden">
                     <img
                       src={helper.image}
                       alt={`${helper.name}, ${helper.role}`}
@@ -506,34 +505,157 @@ function MatchingSection() {
                     <span className="absolute left-3 top-3 rounded-full bg-sage px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
                       #{i + 1} match
                     </span>
-                  </div>
+                  </Link>
                   <div className="flex flex-1 flex-col p-5">
-                    <p
-                      className="text-2xl tracking-tight text-charcoal"
-                      style={{ fontFamily: "var(--font-display)" }}
-                    >
+                    <p className="text-2xl tracking-tight text-charcoal" style={{ fontFamily: "var(--font-display)" }}>
                       {helper.name}
                     </p>
                     <p className="text-xs font-semibold uppercase tracking-widest text-terracotta">
                       {helper.role}
                     </p>
+                    <p className="mt-2 text-xs text-charcoal/60">
+                      {helper.city}, {helper.state} · Speaks {helper.nativeLanguage}
+                    </p>
                     <p className="mt-3 text-sm text-muted-foreground">
-                      ${helper.rateMin}–${helper.rateMax}/hr · {helper.languages.join(", ")}
+                      ₹{helper.rateMin}–₹{helper.rateMax}/hr · {helper.languages.join(", ")}
                     </p>
-                    <p className="mt-3 text-xs text-sage">
-                      Compatibility score: {score}
-                    </p>
-                    <span className="mt-auto pt-4 text-xs font-bold uppercase tracking-widest text-sage">
-                      View profile →
-                    </span>
+                    <p className="mt-2 text-xs text-sage">Compatibility score: {score}</p>
+                    <div className="mt-auto flex gap-2 pt-4">
+                      <Link to="/helpers/$helperId" params={{ helperId: helper.id }}
+                        className="flex-1 rounded-lg border border-charcoal/15 px-3 py-2 text-center text-[11px] font-bold uppercase tracking-widest text-charcoal hover:bg-charcoal/5">
+                        Profile
+                      </Link>
+                      <Link to="/book/$helperId" params={{ helperId: helper.id }}
+                        className="flex-1 rounded-lg bg-sage px-3 py-2 text-center text-[11px] font-bold uppercase tracking-widest text-white hover:bg-primary">
+                        Book & Pay
+                      </Link>
+                    </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
         )}
+
+        <MatchChatBot />
       </div>
     </section>
+  );
+}
+
+type ChatMsg = { role: "user" | "assistant"; content: string };
+
+function MatchChatBot() {
+  const [messages, setMessages] = useState<ChatMsg[]>([
+    { role: "assistant", content: "Hi! I'm your match assistant. Ask me anything — about helpers in your state, budgets in INR, languages, verification, or how to book." },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, loading]);
+
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = input.trim();
+    if (!text || loading) return;
+    setInput("");
+    setError(null);
+    const next: ChatMsg[] = [...messages, { role: "user", content: text }];
+    setMessages(next);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: next }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({ error: "" as string }));
+        throw new Error((j as { error?: string }).error || `Request failed (${res.status})`);
+      }
+      const data = (await res.json()) as { reply: string };
+      setMessages((m) => [...m, { role: "assistant", content: data.reply || "(no reply)" }]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const suggestions = [
+    "Which helper suits a family of 5 in Bengaluru?",
+    "Who speaks Tamil and cooks daily meals?",
+    "How does police verification work?",
+    "What's the budget for a full-time nanny in Delhi?",
+  ];
+
+  return (
+    <div className="mt-10 overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+      <div className="flex items-center justify-between border-b border-border bg-sage/10 px-6 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sage text-white">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-bold uppercase tracking-widest text-charcoal">Match Assistant</p>
+            <p className="text-xs text-muted-foreground">Ask anything about matches, helpers or booking</p>
+          </div>
+        </div>
+        <span className="hidden rounded-full bg-sage px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-white md:inline-block">AI</span>
+      </div>
+
+      <div ref={scrollRef} className="max-h-80 space-y-3 overflow-y-auto px-6 py-5">
+        {messages.map((m, i) => (
+          <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+              m.role === "user"
+                ? "bg-sage text-white"
+                : "border border-border bg-background text-foreground"
+            }`}>
+              {m.content}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="rounded-2xl border border-border bg-background px-4 py-2.5 text-sm text-muted-foreground">
+              Thinking…
+            </div>
+          </div>
+        )}
+        {error && <p className="text-xs text-terracotta">{error}</p>}
+      </div>
+
+      {messages.length <= 1 && (
+        <div className="flex flex-wrap gap-2 px-6 pb-3">
+          {suggestions.map((s) => (
+            <button key={s} type="button" onClick={() => setInput(s)}
+              className="rounded-full border border-charcoal/15 bg-background px-3 py-1.5 text-xs text-charcoal/80 hover:border-sage/60 hover:text-charcoal">
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <form onSubmit={send} className="flex gap-2 border-t border-border bg-background px-4 py-3">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask about your matches, helpers, prices…"
+          className="flex-1 rounded-full border border-charcoal/15 bg-background px-4 py-2 text-sm outline-none focus:border-sage"
+        />
+        <button type="submit" disabled={loading || !input.trim()}
+          className="rounded-full bg-sage px-5 py-2 text-xs font-bold uppercase tracking-widest text-white disabled:opacity-40">
+          Send
+        </button>
+      </form>
+    </div>
   );
 }
 
@@ -622,9 +744,9 @@ function HelperCard({ helper }: { helper: Helper }) {
             Estimated rate
           </p>
           <p className="text-4xl tracking-tight text-sage" style={{ fontFamily: "var(--font-display)" }}>
-            ${helper.rateMin}–${helper.rateMax}
+            ₹{helper.rateMin}–₹{helper.rateMax}
           </p>
-          <p className="text-xs text-muted-foreground">per hour</p>
+          <p className="text-xs text-muted-foreground">per hour · {helper.city}, {helper.state} · {helper.nativeLanguage}</p>
         </div>
 
         <div className="mb-4">
@@ -723,7 +845,7 @@ function ResponsibilitiesSection() {
               </div>
 
               <p className="mt-6 text-3xl tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
-                ${h.rateMin}–${h.rateMax}<span className="text-sm font-normal opacity-70">/hr</span>
+                ₹{h.rateMin}–₹{h.rateMax}<span className="text-sm font-normal opacity-70">/hr</span>
               </p>
             </div>
           ))}
@@ -781,75 +903,75 @@ function TipsSection() {
 const testimonials = [
   {
     id: "t1",
-    name: "Sarah L.",
-    location: "Austin, TX",
-    helper: "Maria — House Cleaner",
+    name: "Ramya Subramanian",
+    location: "Chennai, Tamil Nadu",
+    helper: "Lakshmi — House Cleaner",
     rating: 5,
     review:
-      "Maria is a lifesaver. My home has never looked this clean, and she always shows up right on time. I trust her completely with my keys.",
+      "Lakshmi akka is a blessing. Punctual, honest, and my kitchen has never been this clean. She even helps with festival prep.",
   },
   {
     id: "t2",
-    name: "James & Priya R.",
-    location: "Seattle, WA",
-    helper: "Priya — Home Cook",
+    name: "Neha Kapoor",
+    location: "New Delhi, Delhi",
+    helper: "Anjali — Home Cook",
     rating: 5,
     review:
-      "Priya prepares delicious, healthy meals for our whole family. She respects our dietary needs and leaves the kitchen spotless every time.",
+      "Anjali ji's rotis and dal make our evenings feel like childhood. She adjusts spice for the kids without a fuss.",
   },
   {
     id: "t3",
-    name: "Monica T.",
-    location: "Denver, CO",
-    helper: "Emma — Nanny",
-    rating: 4,
+    name: "Anu Jose",
+    location: "Kochi, Kerala",
+    helper: "Meera — Nanny",
+    rating: 5,
     review:
-      "Emma is wonderful with our two kids. She's patient, creative, and always sends us updates. A true peace of mind for working parents.",
+      "Meera is patient, warm and creative. Our two-year-old runs to the door every morning waiting for her.",
   },
   {
     id: "t4",
-    name: "David K.",
-    location: "Phoenix, AZ",
-    helper: "David — Gardener",
+    name: "Hetal Desai",
+    location: "Ahmedabad, Gujarat",
+    helper: "Ravi — Gardener",
     rating: 5,
     review:
-      "Our yard went from embarrassing to the best on the block. David is knowledgeable, hardworking, and uses eco-friendly products.",
+      "Ravi bhai transformed our terrace into a little farm. Tomatoes, methi, tulsi — all thriving.",
   },
   {
     id: "t5",
-    name: "Rachel M.",
-    location: "Chicago, IL",
-    helper: "Luis — Handyman",
+    name: "Priyanka Gupta",
+    location: "Hyderabad, Telangana",
+    helper: "Suresh — Handyman",
     rating: 5,
     review:
-      "Luis fixed our leaky faucet and assembled a bookshelf in one visit. He was polite, fast, and cleaned up after himself. Highly recommend!",
+      "Suresh anna fixed three things in one visit — leaking tap, loose fan, wall-mounted TV. Very fair pricing.",
   },
   {
     id: "t6",
-    name: "Brian S.",
-    location: "San Diego, CA",
-    helper: "Aisha — Laundry & Ironing",
+    name: "Sneha Bhosale",
+    location: "Pune, Maharashtra",
+    helper: "Kavita — Laundry & Ironing",
     rating: 5,
     review:
-      "Aisha makes our laundry feel like a luxury service. Everything is folded perfectly, and my shirts come back crisp and ready to wear.",
+      "My silk sarees come back looking like new. Kavita tai is careful, gentle and always on time.",
   },
   {
     id: "t7",
-    name: "Linda P.",
-    location: "Portland, OR",
-    helper: "Ryan — Pet Care Helper",
+    name: "Simran Kaur",
+    location: "Amritsar, Punjab",
+    helper: "Arjun — Pet Care",
     rating: 5,
     review:
-      "Ryan is amazing with our golden retriever. He sends photos from every walk and always follows our feeding schedule. Our dog loves him!",
+      "Our Labrador waits by the door for Arjun paaji every evening. Photo updates from every walk. Truly reliable.",
   },
   {
     id: "t8",
-    name: "The Garcia Family",
-    location: "Miami, FL",
-    helper: "Sofia — Elder Care Companion",
+    name: "Debashree Mukherjee",
+    location: "Kolkata, West Bengal",
+    helper: "Sunita — Elder Care",
     rating: 5,
     review:
-      "Sofia has brought so much comfort to our mother. She is gentle, attentive, and keeps us updated. We finally have peace of mind.",
+      "Sunita didi treats Ma with such warmth. She noticed a health issue early and alerted us — we're so grateful.",
   },
 ];
 
@@ -926,7 +1048,7 @@ const faqs = [
   {
     question: "How much does a household helper cost per hour?",
     answer:
-      "Rates typically range from $20 to $35 per hour depending on the role, experience, and your location. Cleaners and nannies usually start around $20–$28/hr, while experienced cooks and specialized gardeners may charge up to $35/hr.",
+      "Rates typically range from ₹150 to ₹400 per hour depending on the role, experience, and your city. Cleaners and laundry help usually start around ₹150–₹260/hr, while experienced cooks, handymen and elder-care helpers can go up to ₹400/hr.",
   },
   {
     question: "Are the helpers background-checked?",

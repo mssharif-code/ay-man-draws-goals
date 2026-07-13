@@ -108,7 +108,7 @@ function HelperDetail() {
           </div>
           <div>
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-terracotta">
-              {helper.role}
+              {helper.role} · {helper.city}, {helper.state}
             </p>
             <h1
               className="mb-6 text-7xl leading-[0.9] tracking-tight text-charcoal md:text-8xl"
@@ -117,22 +117,31 @@ function HelperDetail() {
               {helper.name.toUpperCase()}.
             </h1>
             <p className="mb-8 max-w-lg text-lg leading-relaxed text-muted-foreground">
-              {helper.bio}
+              {helper.bio} Native language: <strong>{helper.nativeLanguage}</strong>.
             </p>
 
             <div className="mb-8 grid grid-cols-3 gap-4">
               <Stat label="Experience" value={`${helper.experienceYears}+ yrs`} />
-              <Stat label="Rate / hr" value={`$${helper.rateMin}–${helper.rateMax}`} />
+              <Stat label="Rate / hr" value={`₹${helper.rateMin}–₹${helper.rateMax}`} />
               <Stat label="Languages" value={String(helper.languages.length)} />
             </div>
 
-            <Link
-              to="/"
-              hash="contact"
-              className="inline-block rounded-full bg-terracotta px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-terracotta/90"
-            >
-              Request {helper.name}
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/book/$helperId"
+                params={{ helperId: helper.id }}
+                className="inline-block rounded-full bg-sage px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-primary"
+              >
+                Book & Pay
+              </Link>
+              <Link
+                to="/"
+                hash="contact"
+                className="inline-block rounded-full border border-charcoal/20 bg-white px-8 py-4 text-xs font-bold uppercase tracking-widest text-charcoal transition hover:bg-cream"
+              >
+                Request {helper.name}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -255,6 +264,27 @@ function HelperDetail() {
           </div>
         </div>
       </section>
+
+      {/* Reviews */}
+      {helper.reviews.length > 0 && (
+        <section className="bg-cream px-6 py-20 md:px-10">
+          <div className="mx-auto max-w-7xl">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-sage">Reviews</p>
+            <h3 className="mb-10 text-5xl tracking-tight text-charcoal" style={{ fontFamily: "var(--font-display)" }}>
+              WHAT FAMILIES SAY.
+            </h3>
+            <div className="grid gap-6 md:grid-cols-2">
+              {helper.reviews.map((r, i) => (
+                <div key={i} className="rounded-2xl border border-charcoal/10 bg-white p-6 shadow-sm">
+                  <div className="mb-2 text-amber-400">{"★".repeat(r.rating)}<span className="text-charcoal/20">{"★".repeat(5 - r.rating)}</span></div>
+                  <p className="text-charcoal">"{r.text}"</p>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-charcoal/60">— {r.author}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Other helpers */}
       <section className="bg-charcoal px-6 py-20 text-white md:px-10">
