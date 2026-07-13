@@ -123,7 +123,9 @@ function Index() {
       <StickyNav />
       <Hero />
       <MatchingSection />
-      <HelpersSection />
+        <HelpersSection />
+        <TrustSection />
+
       <ResponsibilitiesSection />
       <TestimonialsSection />
       <FaqSection />
