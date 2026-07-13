@@ -13,12 +13,40 @@ export const Route = createFileRoute("/")({
 const navLinks = [
   { label: "Match", target: "match" },
   { label: "Helpers", target: "helpers" },
+  { label: "Trust", target: "trust" },
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
   { label: "FAQ", target: "faq" },
   { label: "Membership", target: "membership" },
   { label: "Hiring Tips", target: "tips" },
   { label: "Contact", target: "contact" },
+];
+
+const trustServices = [
+  {
+    title: "Police verification",
+    body: "Every helper undergoes a certified police background check with valid clearance documentation before joining.",
+  },
+  {
+    title: "Medical check",
+    body: "Recent health screenings covering general fitness, communicable disease tests, and vaccination records.",
+  },
+  {
+    title: "Document verification",
+    body: "Government ID, address proof, and prior work references are validated against official sources.",
+  },
+  {
+    title: "Contract generation",
+    body: "Auto-generated, lawyer-reviewed employment contracts tailored to your city's labor rules.",
+  },
+  {
+    title: "Salary benchmarking",
+    body: "Compare offered pay against live market rates by role, experience, and neighborhood — no guesswork.",
+  },
+  {
+    title: "Interview scheduling",
+    body: "Book video or in-person interviews with shortlisted helpers directly through the platform.",
+  },
 ];
 
 
