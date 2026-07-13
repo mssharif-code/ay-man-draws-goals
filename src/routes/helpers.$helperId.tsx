@@ -108,7 +108,7 @@ function HelperDetail() {
           </div>
           <div>
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-terracotta">
-              {helper.role}
+              {helper.role} · {helper.city}, {helper.state}
             </p>
             <h1
               className="mb-6 text-7xl leading-[0.9] tracking-tight text-charcoal md:text-8xl"
@@ -117,7 +117,7 @@ function HelperDetail() {
               {helper.name.toUpperCase()}.
             </h1>
             <p className="mb-8 max-w-lg text-lg leading-relaxed text-muted-foreground">
-              {helper.bio}
+              {helper.bio} Native language: <strong>{helper.nativeLanguage}</strong>.
             </p>
 
             <div className="mb-8 grid grid-cols-3 gap-4">
@@ -126,13 +126,22 @@ function HelperDetail() {
               <Stat label="Languages" value={String(helper.languages.length)} />
             </div>
 
-            <Link
-              to="/"
-              hash="contact"
-              className="inline-block rounded-full bg-terracotta px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-terracotta/90"
-            >
-              Request {helper.name}
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                to="/book/$helperId"
+                params={{ helperId: helper.id }}
+                className="inline-block rounded-full bg-sage px-8 py-4 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-primary"
+              >
+                Book & Pay
+              </Link>
+              <Link
+                to="/"
+                hash="contact"
+                className="inline-block rounded-full border border-charcoal/20 bg-white px-8 py-4 text-xs font-bold uppercase tracking-widest text-charcoal transition hover:bg-cream"
+              >
+                Request {helper.name}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
