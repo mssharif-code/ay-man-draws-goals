@@ -37,36 +37,36 @@ const ApiChatRoute = ApiChatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/helpers/$helperId': typeof HelpersHelperIdRoute
-  '/book/$helperId': typeof BookHelperIdRoute
   '/api/chat': typeof ApiChatRoute
+  '/book/$helperId': typeof BookHelperIdRoute
+  '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/helpers/$helperId': typeof HelpersHelperIdRoute
-  '/book/$helperId': typeof BookHelperIdRoute
   '/api/chat': typeof ApiChatRoute
+  '/book/$helperId': typeof BookHelperIdRoute
+  '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/helpers/$helperId': typeof HelpersHelperIdRoute
-  '/book/$helperId': typeof BookHelperIdRoute
   '/api/chat': typeof ApiChatRoute
+  '/book/$helperId': typeof BookHelperIdRoute
+  '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/helpers/$helperId' | '/book/$helperId' | '/api/chat'
+  fullPaths: '/' | '/api/chat' | '/book/$helperId' | '/helpers/$helperId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/helpers/$helperId' | '/book/$helperId' | '/api/chat'
-  id: '__root__' | '/' | '/helpers/$helperId' | '/book/$helperId' | '/api/chat'
+  to: '/' | '/api/chat' | '/book/$helperId' | '/helpers/$helperId'
+  id: '__root__' | '/' | '/api/chat' | '/book/$helperId' | '/helpers/$helperId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  HelpersHelperIdRoute: typeof HelpersHelperIdRoute
-  BookHelperIdRoute: typeof BookHelperIdRoute
   ApiChatRoute: typeof ApiChatRoute
+  BookHelperIdRoute: typeof BookHelperIdRoute
+  HelpersHelperIdRoute: typeof HelpersHelperIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -104,9 +104,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  HelpersHelperIdRoute: HelpersHelperIdRoute,
-  BookHelperIdRoute: BookHelperIdRoute,
   ApiChatRoute: ApiChatRoute,
+  BookHelperIdRoute: BookHelperIdRoute,
+  HelpersHelperIdRoute: HelpersHelperIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
