@@ -13,12 +13,40 @@ export const Route = createFileRoute("/")({
 const navLinks = [
   { label: "Match", target: "match" },
   { label: "Helpers", target: "helpers" },
+  { label: "Trust", target: "trust" },
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
   { label: "FAQ", target: "faq" },
   { label: "Membership", target: "membership" },
   { label: "Hiring Tips", target: "tips" },
   { label: "Contact", target: "contact" },
+];
+
+const trustServices = [
+  {
+    title: "Police verification",
+    body: "Every helper undergoes a certified police background check with valid clearance documentation before joining.",
+  },
+  {
+    title: "Medical check",
+    body: "Recent health screenings covering general fitness, communicable disease tests, and vaccination records.",
+  },
+  {
+    title: "Document verification",
+    body: "Government ID, address proof, and prior work references are validated against official sources.",
+  },
+  {
+    title: "Contract generation",
+    body: "Auto-generated, lawyer-reviewed employment contracts tailored to your city's labor rules.",
+  },
+  {
+    title: "Salary benchmarking",
+    body: "Compare offered pay against live market rates by role, experience, and neighborhood — no guesswork.",
+  },
+  {
+    title: "Interview scheduling",
+    body: "Book video or in-person interviews with shortlisted helpers directly through the platform.",
+  },
 ];
 
 
@@ -96,6 +124,9 @@ function Index() {
       <Hero />
       <MatchingSection />
       <HelpersSection />
+      <TrustSection />
+
+
       <ResponsibilitiesSection />
       <TestimonialsSection />
       <FaqSection />
@@ -103,6 +134,45 @@ function Index() {
       <TipsSection />
       <ContactSection />
     </div>
+  );
+}
+
+function TrustSection() {
+  return (
+    <section id="trust" className="bg-cream px-6 py-24 md:px-10">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-14 max-w-2xl">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-sage">
+            Trust & verification
+          </p>
+          <h2
+            className="text-4xl font-semibold tracking-tight text-charcoal md:text-5xl"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            Every helper, thoroughly vetted.
+          </h2>
+          <p className="mt-4 text-lg text-charcoal/70">
+            We handle the paperwork, the checks, and the safeguards — so you can hire with confidence.
+          </p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {trustServices.map((s) => (
+            <div
+              key={s.title}
+              className="rounded-2xl border border-charcoal/10 bg-white p-7 transition-shadow hover:shadow-lg"
+            >
+              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-sage/15 text-sage">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+              <h3 className="mb-2 text-lg font-semibold text-charcoal">{s.title}</h3>
+              <p className="text-sm leading-relaxed text-charcoal/70">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
