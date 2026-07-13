@@ -265,6 +265,27 @@ function HelperDetail() {
         </div>
       </section>
 
+      {/* Reviews */}
+      {helper.reviews.length > 0 && (
+        <section className="bg-cream px-6 py-20 md:px-10">
+          <div className="mx-auto max-w-7xl">
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-sage">Reviews</p>
+            <h3 className="mb-10 text-5xl tracking-tight text-charcoal" style={{ fontFamily: "var(--font-display)" }}>
+              WHAT FAMILIES SAY.
+            </h3>
+            <div className="grid gap-6 md:grid-cols-2">
+              {helper.reviews.map((r, i) => (
+                <div key={i} className="rounded-2xl border border-charcoal/10 bg-white p-6 shadow-sm">
+                  <div className="mb-2 text-amber-400">{"★".repeat(r.rating)}<span className="text-charcoal/20">{"★".repeat(5 - r.rating)}</span></div>
+                  <p className="text-charcoal">"{r.text}"</p>
+                  <p className="mt-3 text-xs font-semibold uppercase tracking-widest text-charcoal/60">— {r.author}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Other helpers */}
       <section className="bg-charcoal px-6 py-20 text-white md:px-10">
         <div className="mx-auto max-w-7xl">
