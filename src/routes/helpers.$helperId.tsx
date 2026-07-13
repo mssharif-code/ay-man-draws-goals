@@ -122,7 +122,7 @@ function HelperDetail() {
 
             <div className="mb-8 grid grid-cols-3 gap-4">
               <Stat label="Experience" value={`${helper.experienceYears}+ yrs`} />
-              <Stat label="Rate / hr" value={`$${helper.rateMin}–${helper.rateMax}`} />
+              <Stat label="Rate / hr" value={`₹${helper.rateMin}–₹${helper.rateMax}`} />
               <Stat label="Languages" value={String(helper.languages.length)} />
             </div>
 
