@@ -56,10 +56,57 @@ function BookHelper() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
 
+  // OTP verification state (demo mode — code shown on screen)
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpInput, setOtpInput] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpCooldown, setOtpCooldown] = useState(0);
+  const [verifiedMobile, setVerifiedMobile] = useState("");
+
   const total = helper.rateMax * form.hours;
 
-  const update = (k: keyof typeof form, v: string | number) =>
+  const update = (k: keyof typeof form, v: string | number) => {
     setForm((f) => ({ ...f, [k]: v }));
+    if (k === "mobile") {
+      setOtpSent(false);
+      setOtpVerified(false);
+      setOtpInput("");
+      setOtpError("");
+    }
+  };
+
+  const sendOtp = () => {
+    if (!/^[6-9]\d{9}$/.test(form.mobile.trim())) {
+      setErrors((e) => ({ ...e, mobile: "Enter a 10-digit Indian mobile number" }));
+      return;
+    }
+    setErrors((e) => ({ ...e, mobile: "" }));
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    setOtpCode(code);
+    setOtpSent(true);
+    setOtpVerified(false);
+    setOtpInput("");
+    setOtpError("");
+    setOtpCooldown(30);
+    const id = setInterval(() => {
+      setOtpCooldown((c) => {
+        if (c <= 1) { clearInterval(id); return 0; }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
+  const verifyOtp = () => {
+    if (otpInput.trim() === otpCode) {
+      setOtpVerified(true);
+      setVerifiedMobile(form.mobile);
+      setOtpError("");
+    } else {
+      setOtpError("Incorrect OTP. Please try again.");
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +114,7 @@ function BookHelper() {
     if (form.fullName.trim().length < 2) err.fullName = "Please enter your full name";
     if (!/^[^\s@]+@gmail\.com$/i.test(form.email.trim())) err.email = "Enter a valid Gmail address";
     if (!/^[6-9]\d{9}$/.test(form.mobile.trim())) err.mobile = "Enter a 10-digit Indian mobile number";
+    else if (!otpVerified || verifiedMobile !== form.mobile) err.mobile = "Please verify your mobile number via OTP";
     if (form.address.trim().length < 6) err.address = "Please enter your house address";
     if (!form.city.trim()) err.city = "Please enter your city";
     if (!form.state) err.state = "Please select your state";
@@ -162,9 +210,59 @@ function BookHelper() {
             <Field label="Mobile number" error={errors.mobile}>
               <div className="flex gap-2">
                 <span className="inline-flex items-center rounded-lg border border-charcoal/20 bg-cream px-3 text-sm text-charcoal/70">+91</span>
-                <input value={form.mobile} onChange={(e) => update("mobile", e.target.value.replace(/\D/g, "").slice(0,10))}
-                  placeholder="10-digit mobile" className="input flex-1" />
+                <input
+                  value={form.mobile}
+                  onChange={(e) => update("mobile", e.target.value.replace(/\D/g, "").slice(0,10))}
+                  placeholder="10-digit mobile"
+                  className="input flex-1"
+                  disabled={otpVerified}
+                />
+                {otpVerified ? (
+                  <span className="inline-flex items-center gap-1 rounded-lg bg-sage/15 px-3 text-xs font-bold uppercase tracking-widest text-sage">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5"><path d="M20 6L9 17l-5-5"/></svg>
+                    Verified
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={sendOtp}
+                    disabled={otpCooldown > 0 || form.mobile.length !== 10}
+                    className="rounded-lg bg-charcoal px-3 text-xs font-bold uppercase tracking-widest text-white disabled:opacity-50"
+                  >
+                    {otpCooldown > 0 ? `Resend ${otpCooldown}s` : otpSent ? "Resend OTP" : "Send OTP"}
+                  </button>
+                )}
               </div>
+
+              {otpSent && !otpVerified && (
+                <div className="mt-3 rounded-xl border border-charcoal/10 bg-cream/60 p-4">
+                  <p className="text-xs text-charcoal/70">
+                    We sent a 6-digit code to <strong>+91 {form.mobile}</strong>.
+                  </p>
+                  <p className="mt-1 text-[11px] text-charcoal/50">
+                    Demo mode — your OTP is <strong className="tracking-widest text-charcoal">{otpCode}</strong>
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <input
+                      value={otpInput}
+                      onChange={(e) => { setOtpInput(e.target.value.replace(/\D/g, "").slice(0,6)); setOtpError(""); }}
+                      inputMode="numeric"
+                      maxLength={6}
+                      placeholder="Enter 6-digit OTP"
+                      className="input flex-1 tracking-[0.4em]"
+                    />
+                    <button
+                      type="button"
+                      onClick={verifyOtp}
+                      disabled={otpInput.length !== 6}
+                      className="rounded-lg bg-sage px-4 text-xs font-bold uppercase tracking-widest text-white disabled:opacity-50"
+                    >
+                      Verify
+                    </button>
+                  </div>
+                  {otpError && <p className="mt-2 text-xs text-terracotta">{otpError}</p>}
+                </div>
+              )}
             </Field>
 
             <Field label="House address" error={errors.address}>
