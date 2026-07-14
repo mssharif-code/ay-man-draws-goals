@@ -56,10 +56,57 @@ function BookHelper() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
 
+  // OTP verification state (demo mode — code shown on screen)
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpInput, setOtpInput] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpCooldown, setOtpCooldown] = useState(0);
+  const [verifiedMobile, setVerifiedMobile] = useState("");
+
   const total = helper.rateMax * form.hours;
 
-  const update = (k: keyof typeof form, v: string | number) =>
+  const update = (k: keyof typeof form, v: string | number) => {
     setForm((f) => ({ ...f, [k]: v }));
+    if (k === "mobile") {
+      setOtpSent(false);
+      setOtpVerified(false);
+      setOtpInput("");
+      setOtpError("");
+    }
+  };
+
+  const sendOtp = () => {
+    if (!/^[6-9]\d{9}$/.test(form.mobile.trim())) {
+      setErrors((e) => ({ ...e, mobile: "Enter a 10-digit Indian mobile number" }));
+      return;
+    }
+    setErrors((e) => ({ ...e, mobile: "" }));
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    setOtpCode(code);
+    setOtpSent(true);
+    setOtpVerified(false);
+    setOtpInput("");
+    setOtpError("");
+    setOtpCooldown(30);
+    const id = setInterval(() => {
+      setOtpCooldown((c) => {
+        if (c <= 1) { clearInterval(id); return 0; }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
+  const verifyOtp = () => {
+    if (otpInput.trim() === otpCode) {
+      setOtpVerified(true);
+      setVerifiedMobile(form.mobile);
+      setOtpError("");
+    } else {
+      setOtpError("Incorrect OTP. Please try again.");
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +114,7 @@ function BookHelper() {
     if (form.fullName.trim().length < 2) err.fullName = "Please enter your full name";
     if (!/^[^\s@]+@gmail\.com$/i.test(form.email.trim())) err.email = "Enter a valid Gmail address";
     if (!/^[6-9]\d{9}$/.test(form.mobile.trim())) err.mobile = "Enter a 10-digit Indian mobile number";
+    else if (!otpVerified || verifiedMobile !== form.mobile) err.mobile = "Please verify your mobile number via OTP";
     if (form.address.trim().length < 6) err.address = "Please enter your house address";
     if (!form.city.trim()) err.city = "Please enter your city";
     if (!form.state) err.state = "Please select your state";
