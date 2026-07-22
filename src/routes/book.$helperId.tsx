@@ -356,6 +356,32 @@ function BookHelper() {
             </div>
 
             <div className="rounded-xl border border-charcoal/10 bg-cream/60 p-5">
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-terracotta">Step · Schedule your booking</p>
+              <div className="grid gap-4 md:grid-cols-3">
+                <Field label="Service" error={errors.service}>
+                  <select value={form.service} onChange={(e) => update("service", e.target.value)} className="input">
+                    <option value="">Select service</option>
+                    {helper.services.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </Field>
+                <Field label="Date" error={errors.date}>
+                  <input type="date" min={new Date().toISOString().slice(0,10)}
+                    value={form.date} onChange={(e) => update("date", e.target.value)} className="input" />
+                </Field>
+                <Field label="Time slot" error={errors.slot}>
+                  <select value={form.slot} onChange={(e) => update("slot", e.target.value)} className="input">
+                    <option value="">Select time</option>
+                    {TIME_SLOTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </Field>
+              </div>
+              <p className="mt-3 text-xs text-charcoal/60">
+                Availability: {helper.availability.map((a) => `${a.day} ${a.hours}`).join(" · ")}
+              </p>
+            </div>
+
+
+            <div className="rounded-xl border border-charcoal/10 bg-cream/60 p-5">
               <p className="mb-3 text-xs font-bold uppercase tracking-widest text-sage">Payment · Net banking</p>
               <Field label="Choose your bank" error={errors.bank}>
                 <select value={form.bank} onChange={(e) => update("bank", e.target.value)} className="input">
