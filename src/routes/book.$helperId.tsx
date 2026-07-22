@@ -41,6 +41,16 @@ const BANKS = [
   "IDBI Bank","Bank of India","Central Bank of India","Federal Bank","South Indian Bank","RBL Bank",
 ];
 
+const TIME_SLOTS = [
+  "7:00 AM – 9:00 AM","9:00 AM – 11:00 AM","11:00 AM – 1:00 PM",
+  "1:00 PM – 3:00 PM","3:00 PM – 5:00 PM","5:00 PM – 7:00 PM","7:00 PM – 9:00 PM",
+];
+
+function todayISO() {
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
 function BookHelper() {
   const { helper } = Route.useLoaderData() as { helper: Helper };
   const [form, setForm] = useState({
@@ -52,9 +62,14 @@ function BookHelper() {
     state: "",
     bank: "",
     hours: 8,
+    service: helper.services[0] ?? "",
+    date: todayISO(),
+    slot: TIME_SLOTS[1],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
+  const [notifications, setNotifications] = useState<{ title: string; body: string; time: string }[]>([]);
+
 
   // OTP verification state (demo mode — code shown on screen)
   const [otpSent, setOtpSent] = useState(false);
@@ -108,6 +123,13 @@ function BookHelper() {
     }
   };
 
+  const pushNotif = (title: string, body: string, delayMs: number) => {
+    setTimeout(() => {
+      const time = new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+      setNotifications((n) => [...n, { title, body, time }]);
+    }, delayMs);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const err: Record<string, string> = {};
@@ -115,38 +137,88 @@ function BookHelper() {
     if (!/^[^\s@]+@gmail\.com$/i.test(form.email.trim())) err.email = "Enter a valid Gmail address";
     if (!/^[6-9]\d{9}$/.test(form.mobile.trim())) err.mobile = "Enter a 10-digit Indian mobile number";
     else if (!otpVerified || verifiedMobile !== form.mobile) err.mobile = "Please verify your mobile number via OTP";
+    if (!form.service) err.service = "Please choose a service";
+    if (!form.date) err.date = "Please pick a date";
+    else if (form.date < new Date().toISOString().slice(0,10)) err.date = "Date can't be in the past";
+    if (!form.slot) err.slot = "Please pick a time slot";
     if (form.address.trim().length < 6) err.address = "Please enter your house address";
     if (!form.city.trim()) err.city = "Please enter your city";
     if (!form.state) err.state = "Please select your state";
     if (!form.bank) err.bank = "Please choose a bank for net banking";
     setErrors(err);
-    if (Object.keys(err).length === 0) setDone(true);
+    if (Object.keys(err).length === 0) {
+      setDone(true);
+      pushNotif("✅ Payment successful", `₹${total.toLocaleString("en-IN")} paid to ${helper.name} via ${form.bank}.`, 400);
+      pushNotif("👋 Helper accepted", `${helper.name} accepted your booking on ${form.date} · ${form.slot}.`, 2200);
+      pushNotif("🛵 Helper arriving", `${helper.name} is on the way. ETA ~15 min.`, 5000);
+      pushNotif("⭐ Review reminder", `How was your service with ${helper.name}? Tap to rate.`, 8500);
+    }
   };
 
   if (done) {
     return (
-      <div className="min-h-screen bg-cream px-6 py-24">
-        <div className="mx-auto max-w-xl rounded-3xl bg-white p-10 text-center shadow-lg">
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-sage text-white">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7"><path d="M20 6L9 17l-5-5"/></svg>
+      <div className="min-h-screen bg-cream px-6 py-16">
+        <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2">
+          <div className="rounded-3xl bg-white p-8 shadow-lg">
+            <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-sage text-white">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7"><path d="M20 6L9 17l-5-5"/></svg>
+            </div>
+            <h1 className="text-3xl text-charcoal" style={{ fontFamily: "var(--font-display)" }}>
+              Booking confirmed.
+            </h1>
+            <p className="mt-3 text-charcoal/70">
+              Paid <strong>₹{total.toLocaleString("en-IN")}</strong> via <strong>{form.bank}</strong> for
+              {" "}{form.hours} hours with {helper.name}.
+            </p>
+            <div className="mt-5 space-y-2 rounded-xl border border-charcoal/10 bg-cream/60 p-4 text-sm text-charcoal/80">
+              <div className="flex justify-between"><span>Service</span><span>{form.service}</span></div>
+              <div className="flex justify-between"><span>Date</span><span>{form.date}</span></div>
+              <div className="flex justify-between"><span>Time</span><span>{form.slot}</span></div>
+              <div className="flex justify-between"><span>Address</span><span className="text-right">{form.city}, {form.state}</span></div>
+            </div>
+            <p className="mt-4 text-sm text-charcoal/60">
+              Confirmation emailed to <strong>{form.email}</strong>. Live updates below.
+            </p>
+            <Link to="/" className="mt-8 inline-block rounded-lg bg-sage px-6 py-3 text-xs font-bold uppercase tracking-widest text-white">
+              Back to home
+            </Link>
           </div>
-          <h1 className="text-3xl text-charcoal" style={{ fontFamily: "var(--font-display)" }}>
-            Payment initiated
-          </h1>
-          <p className="mt-3 text-charcoal/70">
-            You will now be redirected to <strong>{form.bank}</strong> net banking to pay
-            <strong> ₹{total.toLocaleString("en-IN")}</strong> for {form.hours} hours with {helper.name}.
-          </p>
-          <p className="mt-2 text-sm text-charcoal/60">
-            A confirmation will be emailed to <strong>{form.email}</strong>.
-          </p>
-          <Link to="/" className="mt-8 inline-block rounded-lg bg-sage px-6 py-3 text-xs font-bold uppercase tracking-widest text-white">
-            Back to home
-          </Link>
+
+          <div className="mx-auto w-full max-w-sm">
+            <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-[0.3em] text-charcoal/60">
+              Helpers app · notifications on +91 {form.mobile}
+            </p>
+            <div className="rounded-[2.5rem] border-[10px] border-charcoal bg-charcoal p-3 shadow-2xl">
+              <div className="min-h-[420px] rounded-[1.75rem] bg-gradient-to-b from-sage/20 via-cream to-white p-4">
+                <div className="mb-3 flex items-center justify-between text-[10px] font-semibold text-charcoal/60">
+                  <span>Helpers</span>
+                  <span>●●● 5G</span>
+                </div>
+                {notifications.length === 0 ? (
+                  <div className="flex h-40 items-center justify-center text-xs text-charcoal/50">
+                    Waiting for updates…
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {notifications.map((n, i) => (
+                      <div key={i} className="animate-in fade-in slide-in-from-top-2 rounded-xl bg-white/90 p-3 shadow-sm backdrop-blur">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="text-sm font-bold text-charcoal">{n.title}</p>
+                          <span className="text-[10px] text-charcoal/50">{n.time}</span>
+                        </div>
+                        <p className="mt-0.5 text-xs text-charcoal/70">{n.body}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -282,6 +354,32 @@ function BookHelper() {
                 </select>
               </Field>
             </div>
+
+            <div className="rounded-xl border border-charcoal/10 bg-cream/60 p-5">
+              <p className="mb-3 text-xs font-bold uppercase tracking-widest text-terracotta">Step · Schedule your booking</p>
+              <div className="grid gap-4 md:grid-cols-3">
+                <Field label="Service" error={errors.service}>
+                  <select value={form.service} onChange={(e) => update("service", e.target.value)} className="input">
+                    <option value="">Select service</option>
+                    {helper.services.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </Field>
+                <Field label="Date" error={errors.date}>
+                  <input type="date" min={new Date().toISOString().slice(0,10)}
+                    value={form.date} onChange={(e) => update("date", e.target.value)} className="input" />
+                </Field>
+                <Field label="Time slot" error={errors.slot}>
+                  <select value={form.slot} onChange={(e) => update("slot", e.target.value)} className="input">
+                    <option value="">Select time</option>
+                    {TIME_SLOTS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </Field>
+              </div>
+              <p className="mt-3 text-xs text-charcoal/60">
+                Availability: {helper.availability.map((a) => `${a.day} ${a.hours}`).join(" · ")}
+              </p>
+            </div>
+
 
             <div className="rounded-xl border border-charcoal/10 bg-cream/60 p-5">
               <p className="mb-3 text-xs font-bold uppercase tracking-widest text-sage">Payment · Net banking</p>
