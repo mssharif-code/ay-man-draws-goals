@@ -41,6 +41,16 @@ const BANKS = [
   "IDBI Bank","Bank of India","Central Bank of India","Federal Bank","South Indian Bank","RBL Bank",
 ];
 
+const TIME_SLOTS = [
+  "7:00 AM – 9:00 AM","9:00 AM – 11:00 AM","11:00 AM – 1:00 PM",
+  "1:00 PM – 3:00 PM","3:00 PM – 5:00 PM","5:00 PM – 7:00 PM","7:00 PM – 9:00 PM",
+];
+
+function todayISO() {
+  const d = new Date(); d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
 function BookHelper() {
   const { helper } = Route.useLoaderData() as { helper: Helper };
   const [form, setForm] = useState({
@@ -52,9 +62,14 @@ function BookHelper() {
     state: "",
     bank: "",
     hours: 8,
+    service: helper.services[0] ?? "",
+    date: todayISO(),
+    slot: TIME_SLOTS[1],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [done, setDone] = useState(false);
+  const [notifications, setNotifications] = useState<{ title: string; body: string; time: string }[]>([]);
+
 
   // OTP verification state (demo mode — code shown on screen)
   const [otpSent, setOtpSent] = useState(false);
