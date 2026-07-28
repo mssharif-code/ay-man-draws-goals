@@ -1,7 +1,6 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { getHelperById, type Helper } from "@/data/helpers";
-import { supabase } from "@/lib/supabase";
 
 export const Route = createFileRoute("/book/$helperId")({
   loader: ({ params }) => {
@@ -153,19 +152,6 @@ function BookHelper() {
       pushNotif("👋 Helper accepted", `${helper.name} accepted your booking on ${form.date} · ${form.slot}.`, 2200);
       pushNotif("🛵 Helper arriving", `${helper.name} is on the way. ETA ~15 min.`, 5000);
       pushNotif("⭐ Review reminder", `How was your service with ${helper.name}? Tap to rate.`, 8500);
-      supabase
-        .from("bookings")
-        .insert({
-          customer_name: form.fullName.trim(),
-          helper_name: helper.name,
-          helper_role: helper.role,
-          service: form.service,
-          hours: form.hours,
-          total,
-        })
-        .then(({ error }) => {
-          if (error) console.error("Failed to save booking record:", error.message);
-        });
     }
   };
 

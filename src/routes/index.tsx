@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 
+
 import heroHelpers from "@/assets/hero-helpers.jpg";
 import { helpers, type Helper } from "@/data/helpers";
-import { supabase, type Booking } from "@/lib/supabase";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -132,111 +132,8 @@ function Index() {
       <FaqSection />
       <MembershipSection />
       <TipsSection />
-      <SavedBookingsSection />
       <ContactSection />
     </div>
-  );
-}
-
-function SavedBookingsSection() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = async () => {
-    setLoading(true);
-    setError(null);
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("id, customer_name, helper_name, helper_role, service, hours, total, created_at")
-      .order("created_at", { ascending: false });
-    if (error) setError(error.message);
-    else setBookings(data ?? []);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    load();
-  }, []);
-
-  return (
-    <section id="records" className="bg-white px-6 py-24 md:px-10">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-10 text-center">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-sage">
-            Saved bookings
-          </p>
-          <h2
-            className="text-4xl font-semibold tracking-tight text-charcoal md:text-5xl"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Your booking records.
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-charcoal/70">
-            Every booking made on this site is saved here with the customer's name and the time.
-          </p>
-        </div>
-
-        {loading && (
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-6 text-center text-charcoal/60">
-            Loading records...
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
-            Could not load records. Please try again.
-          </div>
-        )}
-
-        {!loading && !error && bookings.length === 0 && (
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-8 text-center text-charcoal/60">
-            No bookings yet. Book a helper to see it saved here.
-          </div>
-        )}
-
-        {!loading && !error && bookings.length > 0 && (
-          <ul className="space-y-3">
-            {bookings.map((b) => (
-              <li
-                key={b.id}
-                className="flex flex-col gap-1 rounded-2xl border border-charcoal/10 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-base font-semibold text-charcoal">
-                    {b.customer_name}
-                  </p>
-                  <p className="text-sm text-charcoal/70">
-                    Booked {b.helper_name} · {b.helper_role}
-                  </p>
-                  <p className="text-xs text-charcoal/50">
-                    {b.service} · {b.hours}h · ₹{b.total.toLocaleString("en-IN")}
-                  </p>
-                </div>
-                <div className="text-left text-xs text-charcoal/50 sm:text-right">
-                  {new Date(b.created_at).toLocaleString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div className="mt-8 text-center">
-          <button
-            onClick={load}
-            className="rounded-lg border border-charcoal/20 bg-white px-5 py-2.5 text-sm font-semibold text-charcoal transition hover:bg-cream"
-          >
-            Refresh
-          </button>
-        </div>
-      </div>
-    </section>
   );
 }
 
