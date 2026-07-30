@@ -10,6 +10,18 @@ export const Route = createFileRoute("/")({
 });
 
 
+const navLinks = [
+  { label: "Match", target: "match" },
+  { label: "Helpers", target: "helpers" },
+  { label: "Trust", target: "trust" },
+  { label: "Responsibilities", target: "responsibilities" },
+  { label: "Reviews", target: "testimonials" },
+  { label: "FAQ", target: "faq" },
+  { label: "Membership", target: "membership" },
+  { label: "Hiring Tips", target: "tips" },
+  { label: "Contact", target: "contact" },
+];
+
 const trustServices = [
   {
     title: "Police verification",
@@ -65,9 +77,50 @@ const tips = [
   },
 ];
 
+function StickyNav() {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
+    e.preventDefault();
+    document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  return (
+    <nav className="fixed top-0 left-0 z-50 w-full bg-cream/90 backdrop-blur-md border-b border-charcoal/5">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
+        <a
+          href="#top"
+          onClick={(e) => handleClick(e, "top")}
+          className="text-2xl font-semibold tracking-tight text-charcoal"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          HELPERS
+        </a>
+        <div className="flex items-center gap-1 md:gap-3">
+          {navLinks.map((l) => (
+            <a
+              key={l.target}
+              href={`#${l.target}`}
+              onClick={(e) => handleClick(e, l.target)}
+              className="rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-widest text-charcoal/70 transition-colors hover:bg-charcoal/5 hover:text-charcoal md:text-sm"
+            >
+              {l.label}
+            </a>
+          ))}
+          <a
+            href="#helpers"
+            onClick={(e) => handleClick(e, "helpers")}
+            className="ml-2 hidden rounded-md bg-sage px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-primary md:inline-block"
+          >
+            Find a Helper
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
 function Index() {
   return (
     <div id="top" className="min-h-screen bg-background">
+      <StickyNav />
       <Hero />
       <MatchingSection />
       <HelpersSection />
@@ -134,7 +187,7 @@ function Hero() {
         height={720}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/70 to-cream/30" />
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-24 md:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-32 md:px-10">
         <p className="mb-4 text-xs font-bold uppercase tracking-[0.4em] text-sage">
           Verified · Reliable · Caring
         </p>

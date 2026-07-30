@@ -11,7 +11,6 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { RoleProvider, useRole } from "../lib/role-context";
 
 function NotFoundComponent() {
   return (
@@ -113,72 +112,13 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-function RoleSwitcher() {
-  const { role, setRole } = useRole();
-  return (
-    <div className="flex items-center gap-1 rounded-full border border-charcoal/10 bg-cream p-1">
-      <button
-        onClick={() => setRole("customer")}
-        className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition ${
-          role === "customer"
-            ? "bg-sage text-white"
-            : "text-charcoal/60 hover:text-charcoal"
-        }`}
-      >
-        Customer
-      </button>
-      <button
-        onClick={() => setRole("admin")}
-        className={`rounded-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest transition ${
-          role === "admin"
-            ? "bg-sage text-white"
-            : "text-charcoal/60 hover:text-charcoal"
-        }`}
-      >
-        Super Admin
-      </button>
-    </div>
-  );
-}
-
-function GlobalHeader() {
-  const { role } = useRole();
-  return (
-    <header className="sticky top-0 z-50 border-b border-charcoal/10 bg-cream/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 md:px-10">
-        <Link
-          to="/"
-          className="text-lg font-bold tracking-tight text-charcoal"
-          style={{ fontFamily: "var(--font-display)" }}
-        >
-          HELPERS
-        </Link>
-        <div className="flex items-center gap-3">
-          {role === "admin" && (
-            <Link
-              to="/admin"
-              className="hidden rounded-md bg-sage px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white transition hover:bg-primary md:inline-block"
-            >
-              Dashboard
-            </Link>
-          )}
-          <RoleSwitcher />
-        </div>
-      </div>
-    </header>
-  );
-}
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RoleProvider>
-        <GlobalHeader />
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-      </RoleProvider>
+      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <Outlet />
     </QueryClientProvider>
   );
 }

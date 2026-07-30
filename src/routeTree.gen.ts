@@ -10,29 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AdminRouteImport } from './routes/admin'
-import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as BookHelperIdRouteImport } from './routes/book.$helperId'
 import { Route as HelpersHelperIdRouteImport } from './routes/helpers.$helperId'
+import { Route as BookHelperIdRouteImport } from './routes/book.$helperId'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminRoute = AdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiChatRoute = ApiChatRouteImport.update({
-  id: '/api/chat',
-  path: '/api/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BookHelperIdRoute = BookHelperIdRouteImport.update({
-  id: '/book/$helperId',
-  path: '/book/$helperId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpersHelperIdRoute = HelpersHelperIdRouteImport.update({
@@ -40,17 +24,25 @@ const HelpersHelperIdRoute = HelpersHelperIdRouteImport.update({
   path: '/helpers/$helperId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookHelperIdRoute = BookHelperIdRouteImport.update({
+  id: '/book/$helperId',
+  path: '/book/$helperId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/api/chat': typeof ApiChatRoute
   '/book/$helperId': typeof BookHelperIdRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/api/chat': typeof ApiChatRoute
   '/book/$helperId': typeof BookHelperIdRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
@@ -58,29 +50,20 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/admin': typeof AdminRoute
   '/api/chat': typeof ApiChatRoute
   '/book/$helperId': typeof BookHelperIdRoute
   '/helpers/$helperId': typeof HelpersHelperIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    '/' | '/admin' | '/api/chat' | '/book/$helperId' | '/helpers/$helperId'
+  fullPaths: '/' | '/api/chat' | '/book/$helperId' | '/helpers/$helperId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/api/chat' | '/book/$helperId' | '/helpers/$helperId'
-  id:
-    | '__root__'
-    | '/'
-    | '/admin'
-    | '/api/chat'
-    | '/book/$helperId'
-    | '/helpers/$helperId'
+  to: '/' | '/api/chat' | '/book/$helperId' | '/helpers/$helperId'
+  id: '__root__' | '/' | '/api/chat' | '/book/$helperId' | '/helpers/$helperId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
   ApiChatRoute: typeof ApiChatRoute
   BookHelperIdRoute: typeof BookHelperIdRoute
   HelpersHelperIdRoute: typeof HelpersHelperIdRoute
@@ -95,18 +78,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin': {
-      id: '/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/chat': {
-      id: '/api/chat'
-      path: '/api/chat'
-      fullPath: '/api/chat'
-      preLoaderRoute: typeof ApiChatRouteImport
+    '/helpers/$helperId': {
+      id: '/helpers/$helperId'
+      path: '/helpers/$helperId'
+      fullPath: '/helpers/$helperId'
+      preLoaderRoute: typeof HelpersHelperIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/book/$helperId': {
@@ -116,11 +92,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BookHelperIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/helpers/$helperId': {
-      id: '/helpers/$helperId'
-      path: '/helpers/$helperId'
-      fullPath: '/helpers/$helperId'
-      preLoaderRoute: typeof HelpersHelperIdRouteImport
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -128,7 +104,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
   ApiChatRoute: ApiChatRoute,
   BookHelperIdRoute: BookHelperIdRoute,
   HelpersHelperIdRoute: HelpersHelperIdRoute,
@@ -136,13 +111,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
