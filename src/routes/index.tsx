@@ -86,44 +86,45 @@ const tips = [
 ];
 
 function StickyNav() {
+  const role = useRole();
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, target: string) => {
     e.preventDefault();
     document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+  const links = [
+    ...(role === "admin" ? [{ label: "Dashboard", target: "admin" }] : []),
+    ...navLinks,
+    { label: role === "admin" ? "All records" : "My records", target: "records" },
+  ];
   return (
-    <nav className="fixed top-0 left-0 z-50 w-full bg-cream/90 backdrop-blur-md border-b border-charcoal/5">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:px-10">
+    <nav className="fixed top-0 left-0 z-50 w-full border-b border-charcoal/5 bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-10">
         <a
           href="#top"
           onClick={(e) => handleClick(e, "top")}
-          className="text-2xl font-semibold tracking-tight text-charcoal"
+          className="shrink-0 text-xl font-semibold tracking-tight text-charcoal md:text-2xl"
           style={{ fontFamily: "var(--font-display)" }}
         >
           HELPERS
         </a>
-        <div className="flex items-center gap-1 md:gap-3">
-          {navLinks.map((l) => (
-            <a
-              key={l.target}
-              href={`#${l.target}`}
-              onClick={(e) => handleClick(e, l.target)}
-              className="rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-widest text-charcoal/70 transition-colors hover:bg-charcoal/5 hover:text-charcoal md:text-sm"
-            >
-              {l.label}
-            </a>
-          ))}
+        <RoleSwitcher />
+      </div>
+      <div className="flex gap-1 overflow-x-auto px-4 pb-2 md:justify-center md:px-10">
+        {links.map((l) => (
           <a
-            href="#helpers"
-            onClick={(e) => handleClick(e, "helpers")}
-            className="ml-2 hidden rounded-md bg-sage px-4 py-2 text-xs font-bold uppercase tracking-widest text-white transition hover:bg-primary md:inline-block"
+            key={l.target}
+            href={`#${l.target}`}
+            onClick={(e) => handleClick(e, l.target)}
+            className="shrink-0 rounded-md px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-charcoal/70 transition-colors hover:bg-charcoal/5 hover:text-charcoal md:text-xs"
           >
-            Find a Helper
+            {l.label}
           </a>
-        </div>
+        ))}
       </div>
     </nav>
   );
 }
+
 
 function RoleSwitcher() {
   const role = useRole();
