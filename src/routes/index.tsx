@@ -117,16 +117,35 @@ function StickyNav() {
   );
 }
 
+function RoleSwitcher() {
+  const role = useRole();
+  return (
+    <div className="flex items-center gap-1 rounded-full border border-charcoal/10 bg-white p-1">
+      {(["customer", "admin"] as Role[]).map((r) => (
+        <button
+          key={r}
+          onClick={() => setRole(r)}
+          className={`rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition ${
+            role === r ? "bg-sage text-white" : "text-charcoal/60 hover:text-charcoal"
+          }`}
+        >
+          {r === "customer" ? "Customer" : "Super admin"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function Index() {
+  const role = useRole();
   return (
     <div id="top" className="min-h-screen bg-background">
       <StickyNav />
       <Hero />
+      {role === "admin" && <AdminDashboard />}
       <MatchingSection />
       <HelpersSection />
       <TrustSection />
-
-
       <ResponsibilitiesSection />
       <TestimonialsSection />
       <FaqSection />
@@ -138,107 +157,144 @@ function Index() {
   );
 }
 
-function SavedBookingsSection() {
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 
-  const load = async () => {
-    setLoading(true);
-    setError(null);
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("id, customer_name, helper_name, helper_role, service, hours, total, created_at")
-      .order("created_at", { ascending: false });
-    if (error) setError(error.message);
-    else setBookings(data ?? []);
-    setLoading(false);
-  };
+function AdminDashboard() {
+  const records = useRecords();
 
-  useEffect(() => {
-    load();
-  }, []);
+  const sales = records.reduce((sum, r) => sum + r.total, 0);
+  const counts = new Map<string, { name: string; role: string; bookings: number; revenue: number }>();
+  for (const r of records) {
+    const prev = counts.get(r.helperName) ?? { name: r.helperName, role: r.helperRole, bookings: 0, revenue: 0 };
+    counts.set(r.helperName, { ...prev, bookings: prev.bookings + 1, revenue: prev.revenue + r.total });
+  }
+  const leaderboard = [...counts.values()].sort((a, b) => b.bookings - a.bookings);
+  const topHelper = leaderboard[0];
+  const customers = new Set(records.map((r) => r.customerName.toLowerCase())).size;
+
+  const stats = [
+    { label: "Total sales", value: `₹${sales.toLocaleString("en-IN")}` },
+    { label: "Helpers booked", value: String(records.length) },
+    { label: "Unique customers", value: String(customers) },
+    { label: "Most used helper", value: topHelper ? topHelper.name : "—" },
+  ];
 
   return (
-    <section id="records" className="bg-white px-6 py-24 md:px-10">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-10 text-center">
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-sage">
-            Saved bookings
-          </p>
-          <h2
-            className="text-4xl font-semibold tracking-tight text-charcoal md:text-5xl"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Your booking records.
-          </h2>
-          <p className="mx-auto mt-4 max-w-md text-charcoal/70">
-            Every booking made on this site is saved here with the customer's name and the time.
-          </p>
+    <section id="admin" className="bg-charcoal px-5 py-16 md:px-10">
+      <div className="mx-auto max-w-5xl">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.35em] text-sage">Super admin only</p>
+        <h2 className="text-3xl text-white md:text-4xl" style={{ fontFamily: "var(--font-display)" }}>
+          Company dashboard.
+        </h2>
+        <p className="mt-3 text-sm text-white/60">
+          Sales, bookings and helper performance across every customer.
+        </p>
+
+        <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+          {stats.map((s) => (
+            <div key={s.label} className="rounded-2xl bg-white/5 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-white/50">{s.label}</p>
+              <p className="mt-2 text-xl font-semibold text-white md:text-2xl">{s.value}</p>
+            </div>
+          ))}
         </div>
 
-        {loading && (
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-6 text-center text-charcoal/60">
-            Loading records...
-          </div>
-        )}
-
-        {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
-            Could not load records. Please try again.
-          </div>
-        )}
-
-        {!loading && !error && bookings.length === 0 && (
-          <div className="rounded-2xl border border-charcoal/10 bg-cream p-8 text-center text-charcoal/60">
-            No bookings yet. Book a helper to see it saved here.
-          </div>
-        )}
-
-        {!loading && !error && bookings.length > 0 && (
-          <ul className="space-y-3">
-            {bookings.map((b) => (
-              <li
-                key={b.id}
-                className="flex flex-col gap-1 rounded-2xl border border-charcoal/10 bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <p className="text-base font-semibold text-charcoal">
-                    {b.customer_name}
-                  </p>
-                  <p className="text-sm text-charcoal/70">
-                    Booked {b.helper_name} · {b.helper_role}
-                  </p>
-                  <p className="text-xs text-charcoal/50">
-                    {b.service} · {b.hours}h · ₹{b.total.toLocaleString("en-IN")}
-                  </p>
-                </div>
-                <div className="text-left text-xs text-charcoal/50 sm:text-right">
-                  {new Date(b.created_at).toLocaleString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <div className="mt-8 text-center">
-          <button
-            onClick={load}
-            className="rounded-lg border border-charcoal/20 bg-white px-5 py-2.5 text-sm font-semibold text-charcoal transition hover:bg-cream"
-          >
-            Refresh
-          </button>
+        <div className="mt-8 rounded-2xl bg-white p-5">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-charcoal/70">Helper leaderboard</h3>
+          {leaderboard.length === 0 ? (
+            <p className="mt-3 text-sm text-charcoal/60">No bookings yet.</p>
+          ) : (
+            <ul className="mt-3 divide-y divide-charcoal/10">
+              {leaderboard.map((h, i) => (
+                <li key={h.name} className="flex items-center justify-between gap-3 py-3">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-charcoal">
+                      {i + 1}. {h.name}
+                    </p>
+                    <p className="truncate text-xs text-charcoal/60">{h.role}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-sm font-semibold text-sage">{h.bookings} bookings</p>
+                    <p className="text-xs text-charcoal/60">₹{h.revenue.toLocaleString("en-IN")}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </section>
   );
 }
+
+function SavedBookingsSection() {
+  const role = useRole();
+  const records = useRecords();
+  const customerName = useCustomerName();
+
+  const visible =
+    role === "admin"
+      ? records
+      : records.filter((r) => r.customerName.toLowerCase() === customerName.toLowerCase());
+
+  return (
+    <section id="records" className="bg-white px-5 py-16 md:px-10">
+      <div className="mx-auto max-w-3xl">
+        <div className="mb-8 text-center">
+          <p className="mb-2 text-xs font-bold uppercase tracking-[0.35em] text-sage">
+            {role === "admin" ? "All bookings" : "My bookings"}
+          </p>
+          <h2
+            className="text-3xl tracking-tight text-charcoal md:text-4xl"
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            {role === "admin" ? "Every saved record." : "Your booking records."}
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-sm text-charcoal/70">
+            {role === "admin"
+              ? "Records from all customers, with their name and the time of booking."
+              : "Bookings you made are saved here with your name and the time."}
+          </p>
+        </div>
+
+        {visible.length === 0 ? (
+          <div className="rounded-2xl border border-charcoal/10 bg-cream p-6 text-center text-sm text-charcoal/60">
+            No bookings yet. Book a helper to see it saved here.
+          </div>
+        ) : (
+          <ul className="space-y-3">
+            {visible.map((b) => (
+              <li
+                key={b.id}
+                className="rounded-2xl border border-charcoal/10 bg-white p-4 shadow-sm"
+              >
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <p className="text-base font-semibold text-charcoal">{b.customerName}</p>
+                  <p className="text-xs text-charcoal/50">{formatTime(b.createdAt)}</p>
+                </div>
+                <p className="mt-1 text-sm text-charcoal/70">
+                  Booked {b.helperName} · {b.helperRole}
+                </p>
+                <p className="text-xs text-charcoal/50">
+                  {b.service} · {b.hours}h · ₹{b.total.toLocaleString("en-IN")}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
 
 function TrustSection() {
   return (
