@@ -153,7 +153,17 @@ function BookHelper() {
       pushNotif("👋 Helper accepted", `${helper.name} accepted your booking on ${form.date} · ${form.slot}.`, 2200);
       pushNotif("🛵 Helper arriving", `${helper.name} is on the way. ETA ~15 min.`, 5000);
       pushNotif("⭐ Review reminder", `How was your service with ${helper.name}? Tap to rate.`, 8500);
+      setCustomerName(form.fullName.trim());
+      addRecord({
+        customerName: form.fullName.trim(),
+        helperName: helper.name,
+        helperRole: helper.role,
+        service: form.service,
+        hours: form.hours,
+        total,
+      });
       supabase
+
         .from("bookings")
         .insert({
           customer_name: form.fullName.trim(),
