@@ -4,6 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import heroHelpers from "@/assets/hero-helpers.jpg";
 import { helpers, type Helper } from "@/data/helpers";
 import { supabase, type Booking } from "@/lib/supabase";
+import {
+  setRole,
+  useCustomerName,
+  useRecords,
+  useRole,
+  type Role,
+} from "@/lib/records";
+
 
 export const Route = createFileRoute("/")({
   component: Index,
