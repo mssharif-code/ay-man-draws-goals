@@ -273,7 +273,7 @@ const SPECS: Spec[] = [
   },
   {
     id: "ishita", name: "Ishita Bose", role: "Home Organizer", city: "Kolkata", state: "West Bengal",
-    lang: "Bengali", image: "https://images.pexels.com/photos/4housekeeping/x.jpg",
+    lang: "Bengali", image: "https://images.pexels.com/photos/4506270/pexels-photo-4506270.jpeg?auto=compress&cs=tinysrgb&w=600",
     years: 5, rateMin: 300, rateMax: 450,
     bio: "Ishita declutters wardrobes, kitchens and storage rooms into simple, findable systems.",
     services: ["Wardrobe organising", "Kitchen and pantry systems", "Storage decluttering", "Move-in setup"],
