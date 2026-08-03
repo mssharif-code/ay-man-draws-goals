@@ -286,6 +286,9 @@ function HelperDetail() {
         </section>
       )}
 
+      <HelperAttendancePanel helper={helper} />
+
+
       {/* Other helpers */}
       <section className="bg-charcoal px-6 py-20 text-white md:px-10">
         <div className="mx-auto max-w-7xl">
