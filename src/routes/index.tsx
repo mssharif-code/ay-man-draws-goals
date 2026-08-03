@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import heroHelpers from "@/assets/hero-helpers.jpg";
 import { helpers, type Helper } from "@/data/helpers";
+import { buildAttendance } from "@/lib/attendance";
 import { supabase, type Booking } from "@/lib/supabase";
+
 import {
   setRole,
   useCustomerName,
