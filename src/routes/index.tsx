@@ -239,10 +239,89 @@ function AdminDashboard() {
             </ul>
           )}
         </div>
+
+        <StaffAttendanceTable />
       </div>
     </section>
   );
 }
+
+function StaffAttendanceTable() {
+  const rows = useMemo(() => helpers.map((h) => buildAttendance(h)), []);
+  const [query, setQuery] = useState("");
+
+  const visible = rows.filter(
+    (r) =>
+      r.name.toLowerCase().includes(query.toLowerCase()) ||
+      r.role.toLowerCase().includes(query.toLowerCase()),
+  );
+  const payroll = rows.reduce((s, r) => s + r.netSalary, 0);
+  const totalLate = rows.reduce((s, r) => s + r.lateArrivals, 0);
+
+  return (
+    <div className="mt-8 rounded-2xl bg-white p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-charcoal/70">
+            Helper attendance &amp; salary
+          </h3>
+          <p className="mt-1 text-xs text-charcoal/60">
+            {rows[0]?.month} · monthly payroll ₹{payroll.toLocaleString("en-IN")} · {totalLate} late arrivals
+          </p>
+        </div>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search helper or role"
+          className="rounded-full border border-charcoal/15 px-4 py-2 text-sm outline-none focus:border-sage"
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[620px] text-left text-sm">
+          <thead>
+            <tr className="text-[11px] uppercase tracking-wider text-charcoal/50">
+              <th className="py-2">Helper</th>
+              <th>Arrival</th>
+              <th>Departure</th>
+              <th>Attendance</th>
+              <th>Late</th>
+              <th>Salary</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-charcoal/10">
+            {visible.map((r) => (
+              <tr key={r.helperId}>
+                <td className="py-2.5">
+                  <p className="font-semibold text-charcoal">{r.name}</p>
+                  <p className="text-xs text-charcoal/60">{r.role}</p>
+                </td>
+                <td className="text-charcoal/80">{r.lastArrival ?? "—"}</td>
+                <td className="text-charcoal/80">{r.lastDeparture ?? "—"}</td>
+                <td className="text-charcoal/80">
+                  {r.presentDays}/{r.workingDays}
+                </td>
+                <td className={r.lateArrivals > 3 ? "text-terracotta" : "text-charcoal/80"}>{r.lateArrivals}</td>
+                <td className="font-semibold text-sage">₹{r.netSalary.toLocaleString("en-IN")}</td>
+                <td className="text-right">
+                  <Link
+                    to="/helpers/$helperId"
+                    params={{ helperId: r.helperId }}
+                    className="text-xs font-semibold uppercase tracking-wider text-charcoal/60 hover:text-charcoal"
+                  >
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 
 function SavedBookingsSection() {
   const role = useRole();
