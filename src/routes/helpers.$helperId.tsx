@@ -1,5 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { helpers, getHelperById, type Helper } from "@/data/helpers";
+import { HelperAttendancePanel } from "@/components/HelperAttendancePanel";
+
 
 export const Route = createFileRoute("/helpers/$helperId")({
   loader: ({ params }) => {
@@ -285,6 +287,9 @@ function HelperDetail() {
           </div>
         </section>
       )}
+
+      <HelperAttendancePanel helper={helper} />
+
 
       {/* Other helpers */}
       <section className="bg-charcoal px-6 py-20 text-white md:px-10">

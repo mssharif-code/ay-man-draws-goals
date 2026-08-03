@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import heroHelpers from "@/assets/hero-helpers.jpg";
 import { helpers, type Helper } from "@/data/helpers";
+import { buildAttendance } from "@/lib/attendance";
 import { supabase, type Booking } from "@/lib/supabase";
+
 import {
   setRole,
   useCustomerName,
@@ -239,10 +241,89 @@ function AdminDashboard() {
             </ul>
           )}
         </div>
+
+        <StaffAttendanceTable />
       </div>
     </section>
   );
 }
+
+function StaffAttendanceTable() {
+  const rows = useMemo(() => helpers.map((h) => buildAttendance(h)), []);
+  const [query, setQuery] = useState("");
+
+  const visible = rows.filter(
+    (r) =>
+      r.name.toLowerCase().includes(query.toLowerCase()) ||
+      r.role.toLowerCase().includes(query.toLowerCase()),
+  );
+  const payroll = rows.reduce((s, r) => s + r.netSalary, 0);
+  const totalLate = rows.reduce((s, r) => s + r.lateArrivals, 0);
+
+  return (
+    <div className="mt-8 rounded-2xl bg-white p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-charcoal/70">
+            Helper attendance &amp; salary
+          </h3>
+          <p className="mt-1 text-xs text-charcoal/60">
+            {rows[0]?.month} · monthly payroll ₹{payroll.toLocaleString("en-IN")} · {totalLate} late arrivals
+          </p>
+        </div>
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search helper or role"
+          className="rounded-full border border-charcoal/15 px-4 py-2 text-sm outline-none focus:border-sage"
+        />
+      </div>
+
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[620px] text-left text-sm">
+          <thead>
+            <tr className="text-[11px] uppercase tracking-wider text-charcoal/50">
+              <th className="py-2">Helper</th>
+              <th>Arrival</th>
+              <th>Departure</th>
+              <th>Attendance</th>
+              <th>Late</th>
+              <th>Salary</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-charcoal/10">
+            {visible.map((r) => (
+              <tr key={r.helperId}>
+                <td className="py-2.5">
+                  <p className="font-semibold text-charcoal">{r.name}</p>
+                  <p className="text-xs text-charcoal/60">{r.role}</p>
+                </td>
+                <td className="text-charcoal/80">{r.lastArrival ?? "—"}</td>
+                <td className="text-charcoal/80">{r.lastDeparture ?? "—"}</td>
+                <td className="text-charcoal/80">
+                  {r.presentDays}/{r.workingDays}
+                </td>
+                <td className={r.lateArrivals > 3 ? "text-terracotta" : "text-charcoal/80"}>{r.lateArrivals}</td>
+                <td className="font-semibold text-sage">₹{r.netSalary.toLocaleString("en-IN")}</td>
+                <td className="text-right">
+                  <Link
+                    to="/helpers/$helperId"
+                    params={{ helperId: r.helperId }}
+                    className="text-xs font-semibold uppercase tracking-wider text-charcoal/60 hover:text-charcoal"
+                  >
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 
 function SavedBookingsSection() {
   const role = useRole();
@@ -1299,64 +1380,218 @@ function FaqSection() {
   );
 }
 
-const membershipBenefits = [
-  "15% off every booking after your third visit",
-  "Priority scheduling with your favorite helper",
-  "Free rescheduling up to 24 hours before a visit",
-  "Exclusive member-only seasonal offers",
+type Plan = {
+  id: string;
+  name: string;
+  price: number;
+  billing: "monthly" | "yearly";
+  category: "Basic" | "Family" | "Premium" | "Business";
+  discount: string;
+  tagline: string;
+  benefits: string[];
+  highlight?: boolean;
+};
+
+const plans: Plan[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    price: 199,
+    billing: "monthly",
+    category: "Basic",
+    discount: "5% off",
+    tagline: "For occasional one-off bookings.",
+    benefits: ["5% off every booking", "2 free reschedules a month", "Standard support within 24 hours"],
+  },
+  {
+    id: "regular",
+    name: "Regular",
+    price: 499,
+    billing: "monthly",
+    category: "Basic",
+    discount: "10% off",
+    tagline: "For weekly cleaning or cooking help.",
+    benefits: ["10% off every booking", "Priority scheduling", "Unlimited reschedules", "Verified helper guarantee"],
+  },
+  {
+    id: "family",
+    name: "Family",
+    price: 899,
+    billing: "monthly",
+    category: "Family",
+    discount: "15% off",
+    tagline: "Cook, cleaner and child care under one plan.",
+    benefits: ["15% off every booking", "Up to 3 helpers on one plan", "Same-day replacement helper", "Free monthly deep clean slot"],
+    highlight: true,
+  },
+  {
+    id: "elder",
+    name: "Elder Care Plus",
+    price: 1299,
+    billing: "monthly",
+    category: "Family",
+    discount: "18% off",
+    tagline: "Round-the-clock support for senior citizens.",
+    benefits: ["18% off elder care bookings", "Trained attendant matching", "Medication reminder tracking", "Emergency hospital accompaniment"],
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    price: 1999,
+    billing: "monthly",
+    category: "Premium",
+    discount: "22% off",
+    tagline: "Full home team with a dedicated manager.",
+    benefits: ["22% off every booking", "Dedicated relationship manager", "Unlimited helpers on one plan", "Police + medical verified helpers only"],
+  },
+  {
+    id: "annual",
+    name: "Annual Saver",
+    price: 8999,
+    billing: "yearly",
+    category: "Premium",
+    discount: "25% off",
+    tagline: "Pay once a year and save the most.",
+    benefits: ["25% off every booking", "2 months free vs monthly", "Priority slots on festivals", "Free annual pest control visit"],
+  },
+  {
+    id: "villa",
+    name: "Villa Estate",
+    price: 14999,
+    billing: "yearly",
+    category: "Business",
+    discount: "28% off",
+    tagline: "Pool, garden, driver and security together.",
+    benefits: ["28% off every booking", "Pool + garden upkeep included", "Night security guard rotation", "Quarterly staff attendance report"],
+  },
+  {
+    id: "corporate",
+    name: "Corporate",
+    price: 24999,
+    billing: "yearly",
+    category: "Business",
+    discount: "30% off",
+    tagline: "For offices and serviced apartments.",
+    benefits: ["30% off every booking", "Bulk staffing across sites", "GST invoicing and contracts", "Monthly salary and attendance dashboard"],
+  },
 ];
 
+const planCategories = ["All", "Basic", "Family", "Premium", "Business"] as const;
+const billingFilters = ["All", "monthly", "yearly"] as const;
+
 function MembershipSection() {
+  const [category, setCategory] = useState<(typeof planCategories)[number]>("All");
+  const [billing, setBilling] = useState<(typeof billingFilters)[number]>("All");
+  const [maxPrice, setMaxPrice] = useState(25000);
+
+  const visible = plans.filter(
+    (p) =>
+      (category === "All" || p.category === category) &&
+      (billing === "All" || p.billing === billing) &&
+      p.price <= maxPrice,
+  );
+
+  const chip = (active: boolean) =>
+    `rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wider transition ${
+      active ? "bg-white text-sage" : "bg-white/10 text-white/80 hover:bg-white/20"
+    }`;
+
   return (
-    <section id="membership" className="bg-sage px-6 py-24 text-white md:px-10">
-      <div className="mx-auto max-w-5xl">
-        <div className="grid items-center gap-10 md:grid-cols-2">
-          <div>
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-white/70">
-              Helpers Club
-            </p>
-            <h2
-              className="text-5xl leading-[0.9] tracking-tight md:text-6xl lg:text-7xl"
-              style={{ fontFamily: "var(--font-display)" }}
+    <section id="membership" className="bg-sage px-5 py-20 text-white md:px-10">
+      <div className="mx-auto max-w-6xl">
+        <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-white/70">Helpers Club</p>
+        <h2
+          className="text-4xl leading-[0.9] tracking-tight md:text-6xl"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          PICK A PLAN.
+          <br />
+          SAVE EVERY BOOKING.
+        </h2>
+        <p className="mt-4 max-w-lg text-white/80">
+          Eight membership plans at different prices. Filter by household type, billing cycle and budget
+          to find the one that fits you.
+        </p>
+
+        <div className="mt-8 space-y-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="flex flex-wrap gap-2">
+            {planCategories.map((c) => (
+              <button key={c} type="button" onClick={() => setCategory(c)} className={chip(category === c)}>
+                {c}
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {billingFilters.map((b) => (
+              <button key={b} type="button" onClick={() => setBilling(b)} className={chip(billing === b)}>
+                {b === "All" ? "Any billing" : b}
+              </button>
+            ))}
+          </div>
+          <label className="block text-xs font-semibold uppercase tracking-wider text-white/70">
+            Budget up to ₹{maxPrice.toLocaleString("en-IN")}
+            <input
+              type="range"
+              min={199}
+              max={25000}
+              step={100}
+              value={maxPrice}
+              onChange={(e) => setMaxPrice(Number(e.target.value))}
+              className="mt-2 w-full accent-terracotta"
+            />
+          </label>
+        </div>
+
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {visible.map((p) => (
+            <div
+              key={p.id}
+              className={`flex flex-col rounded-3xl border p-5 backdrop-blur ${
+                p.highlight ? "border-terracotta bg-white/15" : "border-white/10 bg-white/10"
+              }`}
             >
-              SAVE MORE
-              <br />
-              AS A REGULAR.
-            </h2>
-            <p className="mt-5 max-w-md text-white/80">
-              Join our free membership program and unlock discounts reserved for
-              returning customers. The more you book, the more you save.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-8 backdrop-blur">
-            <div className="mb-6 flex items-baseline gap-2">
-              <span className="text-6xl tracking-tight md:text-7xl" style={{ fontFamily: "var(--font-display)" }}>
-                15%
-              </span>
-              <span className="text-lg font-semibold uppercase tracking-widest text-terracotta">
-                Off every booking
-              </span>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">{p.category}</span>
+                <span className="rounded-full bg-terracotta px-2 py-0.5 text-[10px] font-bold uppercase text-white">
+                  {p.discount}
+                </span>
+              </div>
+              <h3 className="mt-3 text-2xl tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+                {p.name}
+              </h3>
+              <p className="mt-1 text-xs text-white/70">{p.tagline}</p>
+              <p className="mt-4 text-3xl font-semibold">
+                ₹{p.price.toLocaleString("en-IN")}
+                <span className="text-sm font-normal text-white/70">/{p.billing === "monthly" ? "mo" : "yr"}</span>
+              </p>
+              <ul className="mt-4 flex-1 space-y-2">
+                {p.benefits.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-xs text-white/90">
+                    <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-terracotta text-[9px] font-bold">
+                      ✓
+                    </span>
+                    {b}
+                  </li>
+                ))}
+              </ul>
             </div>
+          ))}
+        </div>
+        {visible.length === 0 && (
+          <p className="mt-6 rounded-2xl bg-white/10 p-5 text-sm text-white/80">
+            No plans match these filters. Try raising the budget.
+          </p>
+        )}
 
-            <ul className="space-y-3">
-              {membershipBenefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-3 text-sm text-white/90">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-terracotta text-xs font-bold text-white">
-                    ✓
-                  </span>
-                  {benefit}
-                </li>
-              ))}
-            </ul>
-
-            <MembershipForm />
-          </div>
+        <div className="mt-10 rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur md:max-w-xl">
+          <h3 className="text-lg font-semibold">Join the Helpers Club</h3>
+          <MembershipForm />
         </div>
       </div>
     </section>
   );
 }
+
 
 const serviceAreas = [
   "Downtown",
