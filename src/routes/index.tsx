@@ -6,6 +6,10 @@ import { helpers, type Helper } from "@/data/helpers";
 import { buildAttendance } from "@/lib/attendance";
 import { supabase, type Booking } from "@/lib/supabase";
 
+import { AiAssistantSection } from "@/components/AiAssistantSection";
+import { FamilyToolsSection, FavoriteButton, StatusDot } from "@/components/FamilyToolsSection";
+import { EmergencySupport, NotificationBell } from "@/components/SupportWidgets";
+
 import {
   setRole,
   useCustomerName,
@@ -24,6 +28,8 @@ const navLinks = [
   { label: "Match", target: "match" },
   { label: "Helpers", target: "helpers" },
   { label: "Trust", target: "trust" },
+  { label: "Assistant", target: "assistant" },
+  { label: "Family tools", target: "tools" },
   { label: "Responsibilities", target: "responsibilities" },
   { label: "Reviews", target: "testimonials" },
   { label: "FAQ", target: "faq" },
@@ -109,7 +115,10 @@ function StickyNav() {
         >
           HELPERS
         </a>
-        <RoleSwitcher />
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <RoleSwitcher />
+        </div>
       </div>
       <div className="flex gap-1 overflow-x-auto px-4 pb-2 md:justify-center md:px-10">
         {links.map((l) => (
@@ -157,6 +166,8 @@ function Index() {
       <MatchingSection />
       <HelpersSection />
       <TrustSection />
+      <AiAssistantSection />
+      <FamilyToolsSection />
       <ResponsibilitiesSection />
       <TestimonialsSection />
       <FaqSection />
@@ -164,6 +175,7 @@ function Index() {
       <TipsSection />
       <SavedBookingsSection />
       <ContactSection />
+      <EmergencySupport />
     </div>
   );
 }
@@ -967,6 +979,7 @@ function HelperCard({ helper }: { helper: Helper }) {
 
 
       <div className="relative aspect-square overflow-hidden">
+        <FavoriteButton helperId={helper.id} helperName={helper.name} />
         <img
           src={helper.image}
           alt={`${helper.name}, ${helper.role}`}
@@ -996,6 +1009,7 @@ function HelperCard({ helper }: { helper: Helper }) {
             ₹{helper.rateMin}–₹{helper.rateMax}
           </p>
           <p className="text-xs text-muted-foreground">per hour · {helper.city}, {helper.state} · {helper.nativeLanguage}</p>
+          <div className="mt-2"><StatusDot helperId={helper.id} /></div>
         </div>
 
         <div className="mb-4">
