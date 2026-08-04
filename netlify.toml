@@ -1,11 +1,14 @@
 [build]
   command = "bun install && bun run build"
-  publish = ".output/public"
+  publish = "dist/client"
 
 [build.environment]
   NODE_VERSION = "22"
 
+# SPA fallback so client-side routes resolve.
+# NOTE: this build targets a Cloudflare-style worker (dist/server), which
+# Netlify does not run — server routes like /api/chat won't work here.
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/server"
+  to = "/index.html"
   status = 200
