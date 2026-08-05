@@ -7,8 +7,10 @@ import { buildAttendance } from "@/lib/attendance";
 import { supabase, type Booking } from "@/lib/supabase";
 
 import { AiAssistantSection } from "@/components/AiAssistantSection";
-import { FamilyToolsSection, FavoriteButton, StatusDot } from "@/components/FamilyToolsSection";
-import { EmergencySupport, NotificationBell } from "@/components/SupportWidgets";
+import { CustomerDashboard, FavoriteButton, StatusDot } from "@/components/FamilyToolsSection";
+import { HelperDashboard, HelperPicker } from "@/components/HelperDashboard";
+import { AdminOversight } from "@/components/AdminOversight";
+import { NotificationBell } from "@/components/SupportWidgets";
 
 import {
   setRole,
