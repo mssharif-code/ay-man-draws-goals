@@ -11,11 +11,12 @@ export type BookingRecord = {
   createdAt: string;
 };
 
-export type Role = "customer" | "admin";
+export type Role = "customer" | "helper" | "admin";
 
 const RECORDS_KEY = "helpers.records";
 const ROLE_KEY = "helpers.role";
 const CUSTOMER_KEY = "helpers.customer";
+const ACTIVE_HELPER_KEY = "helpers.activeHelper";
 const EVENT = "helpers:store";
 
 function read<T>(key: string, fallback: T): T {
