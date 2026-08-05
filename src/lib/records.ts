@@ -65,6 +65,16 @@ export function setCustomerName(name: string) {
   write(CUSTOMER_KEY, name);
 }
 
+/** Which helper's dashboard is currently being viewed (helper login / admin impersonation). */
+export function getActiveHelperId(): string {
+  return read<string>(ACTIVE_HELPER_KEY, "");
+}
+
+export function setActiveHelperId(id: string) {
+  write(ACTIVE_HELPER_KEY, id);
+}
+
+
 function useStoreValue<T>(getter: () => T, initial: T): T {
   const [value, setValue] = useState<T>(initial);
   useEffect(() => {
