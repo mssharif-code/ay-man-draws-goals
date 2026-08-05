@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getHelperById, type Helper } from "@/data/helpers";
 import { supabase } from "@/lib/supabase";
 import { addRecord, setCustomerName } from "@/lib/records";
+import { startBooking } from "@/lib/household";
 
 
 export const Route = createFileRoute("/book/$helperId")({
