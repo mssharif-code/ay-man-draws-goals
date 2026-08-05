@@ -103,3 +103,8 @@ export function useRecords(): BookingRecord[] {
 export function useCustomerName(): string {
   return useStoreValue(getCustomerName, "");
 }
+
+export function useActiveHelperId(): string {
+  return useStoreValue(getActiveHelperId, "");
+}
+
