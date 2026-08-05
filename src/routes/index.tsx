@@ -146,7 +146,7 @@ function RoleSwitcher() {
   const role = useRole();
   return (
     <div className="flex items-center gap-1 rounded-full border border-charcoal/10 bg-white p-1">
-      {(["customer", "admin"] as Role[]).map((r) => (
+      {(["customer", "helper", "admin"] as Role[]).map((r) => (
         <button
           key={r}
           onClick={() => setRole(r)}
@@ -154,15 +154,28 @@ function RoleSwitcher() {
             role === r ? "bg-sage text-white" : "text-charcoal/60 hover:text-charcoal"
           }`}
         >
-          {r === "customer" ? "Customer" : "Super admin"}
+          {r === "customer" ? "Customer" : r === "helper" ? "Helper" : "Super admin"}
         </button>
       ))}
+      {role === "helper" && <HelperPicker />}
     </div>
   );
 }
 
 function Index() {
   const role = useRole();
+
+  if (role === "helper") {
+    return (
+      <div id="top" className="min-h-screen bg-background">
+        <StickyNav />
+        <div className="pt-28">
+          <HelperDashboard />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div id="top" className="min-h-screen bg-background">
       <StickyNav />
@@ -172,7 +185,7 @@ function Index() {
       <HelpersSection />
       <TrustSection />
       <AiAssistantSection />
-      <FamilyToolsSection />
+      {role === "customer" && <CustomerDashboard />}
       <ResponsibilitiesSection />
       <TestimonialsSection />
       <FaqSection />
@@ -180,10 +193,10 @@ function Index() {
       <TipsSection />
       <SavedBookingsSection />
       <ContactSection />
-      <EmergencySupport />
     </div>
   );
 }
+
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleString("en-IN", {
