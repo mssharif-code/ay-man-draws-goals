@@ -1,19 +1,27 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { helpers } from "@/data/helpers";
 import {
+  agreementText,
+  endBooking,
   liveStatus,
+  reportChat,
   scheduleInterview,
   sendMessage,
   signAgreement,
   toggleFavorite,
+  trackBooking,
   useStore,
+  type ActiveBooking,
 } from "@/lib/household";
+import { useCustomerName } from "@/lib/records";
+import { EmergencySupportButton, NotificationFeed } from "@/components/SupportWidgets";
 
-const VIDEO_SRC =
+export const DEFAULT_VIDEO =
   "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4";
 
 export function StatusDot({ helperId }: { helperId: string }) {
+  useStore(); // re-render on status changes
   const s = liveStatus(helperId);
   const color = s.tone === "on" ? "bg-sage" : s.tone === "busy" ? "bg-amber-500" : "bg-charcoal/30";
   return (
@@ -43,37 +51,62 @@ export function FavoriteButton({ helperId, helperName }: { helperId: string; hel
   );
 }
 
-export function FamilyToolsSection() {
+export function VideoModal({ helperId, onClose }: { helperId: string; onClose: () => void }) {
+  const { videos } = useStore();
+  const helper = helpers.find((h) => h.id === helperId);
+  const v = videos[helperId];
+  const approved = !v || v.status === "approved";
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-charcoal/70 p-4" onClick={onClose}>
+      <div className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-charcoal/10 px-5 py-3">
+          <p className="font-semibold text-charcoal">📹 Video introduction — {helper?.name}</p>
+          <button onClick={onClose} className="text-charcoal/50 hover:text-charcoal">✕</button>
+        </div>
+        {approved ? (
+          <video src={v?.url || DEFAULT_VIDEO} controls autoPlay className="aspect-video w-full bg-charcoal" />
+        ) : (
+          <p className="p-8 text-center text-sm text-muted-foreground">
+            This helper's video is awaiting admin approval.
+          </p>
+        )}
+        <p className="px-5 py-4 text-sm text-muted-foreground">{helper?.bio}</p>
+      </div>
+    </div>
+  );
+}
+
+export function CustomerDashboard() {
   const store = useStore();
+  const customerName = useCustomerName();
   const saved = helpers.filter((h) => store.favorites.includes(h.id));
   const [videoFor, setVideoFor] = useState<string | null>(null);
+  const booking = store.activeBooking;
 
   return (
     <section id="tools" className="px-6 py-24 md:px-10">
       <div className="mx-auto max-w-7xl">
-        <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-terracotta">
-          Family tools
-        </p>
+        <p className="mb-3 text-xs font-bold uppercase tracking-[0.4em] text-terracotta">Customer dashboard</p>
         <h2
           className="mb-4 text-5xl leading-[0.9] tracking-tight text-charcoal md:text-7xl"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          EVERYTHING
+          YOUR HOME,
           <br />
           IN ONE PLACE.
         </h2>
         <p className="mb-12 max-w-xl text-muted-foreground">
-          Save helpers, watch their video intro, message them, check live availability,
-          book an interview and sign a digital work agreement.
+          Track your current helper live, save favourites, watch intro videos, book interviews,
+          sign agreements and reach support — all from here.
         </p>
+
+        <LiveTracking booking={booking} onWatch={setVideoFor} />
 
         {/* Saved helpers */}
         <div className="mb-8 rounded-2xl border border-charcoal/10 bg-white p-6">
-          <h3 className="mb-4 text-xl font-semibold text-charcoal">❤️ Saved helpers</h3>
+          <h3 className="mb-4 text-xl font-semibold text-charcoal">❤️ Favourite helpers</h3>
           {saved.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Tap the heart on any helper card to save them here.
-            </p>
+            <p className="text-sm text-muted-foreground">Tap the heart on any helper card to save them here.</p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {saved.map((h) => (
@@ -82,14 +115,10 @@ export function FamilyToolsSection() {
                     <img src={h.image} alt={h.name} className="h-12 w-12 rounded-full object-cover" loading="lazy" />
                     <div>
                       <p className="font-semibold text-charcoal">{h.name}</p>
-                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                        {h.role}
-                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{h.role}</p>
                     </div>
                   </div>
-                  <div className="mb-3">
-                    <StatusDot helperId={h.id} />
-                  </div>
+                  <div className="mb-3"><StatusDot helperId={h.id} /></div>
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => setVideoFor(h.id)}
@@ -119,45 +148,119 @@ export function FamilyToolsSection() {
 
         <div className="grid gap-6 lg:grid-cols-2">
           <LiveAvailability onWatch={setVideoFor} />
-          <MessagingPanel />
+          <BookedChat booking={booking} />
           <InterviewPanel />
           <AgreementPanel />
+          <NotificationFeed audience="customers" />
+          <div className="flex flex-col justify-center gap-3 rounded-2xl border border-terracotta/30 bg-terracotta/5 p-6">
+            <h3 className="text-xl font-semibold text-charcoal">🛡️ Emergency support</h3>
+            <p className="text-sm text-muted-foreground">
+              Safety desk, police, ambulance and women's helpline — plus a direct report to our team.
+            </p>
+            <EmergencySupportButton from="customer" name={customerName} className="self-start" />
+          </div>
         </div>
       </div>
 
-      {videoFor && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-charcoal/70 p-4"
-          onClick={() => setVideoFor(null)}
-        >
-          <div
-            className="w-full max-w-2xl overflow-hidden rounded-2xl bg-white"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-charcoal/10 px-5 py-3">
-              <p className="font-semibold text-charcoal">
-                📹 Video introduction — {helpers.find((h) => h.id === videoFor)?.name}
-              </p>
-              <button onClick={() => setVideoFor(null)} className="text-charcoal/50 hover:text-charcoal">
-                ✕
-              </button>
-            </div>
-            <video src={VIDEO_SRC} controls autoPlay className="aspect-video w-full bg-charcoal" />
-            <p className="px-5 py-4 text-sm text-muted-foreground">
-              {helpers.find((h) => h.id === videoFor)?.bio}
-            </p>
-          </div>
-        </div>
-      )}
+      {videoFor && <VideoModal helperId={videoFor} onClose={() => setVideoFor(null)} />}
     </section>
   );
 }
 
+export function LiveTracking({
+  booking,
+  onWatch,
+}: {
+  booking: ActiveBooking | null;
+  onWatch?: (id: string) => void;
+}) {
+  if (!booking) {
+    return (
+      <div className="mb-8 rounded-2xl border border-dashed border-charcoal/20 bg-white p-6">
+        <h3 className="mb-2 text-xl font-semibold text-charcoal">📍 Live tracking</h3>
+        <p className="text-sm text-muted-foreground">
+          No helper is on the way right now. Book a helper and you'll see them travelling to your home here.
+        </p>
+      </div>
+    );
+  }
+  const helper = helpers.find((h) => h.id === booking.helperId);
+  const t = trackBooking(booking);
+  const stages = ["Accepted", "Getting ready", "On the way", "Nearby", "Arrived"];
+
+  return (
+    <div className="mb-8 rounded-2xl border border-sage/40 bg-sage/5 p-6">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex items-center gap-3">
+          {helper && (
+            <img src={helper.image} alt={helper.name} className="h-14 w-14 rounded-full object-cover" />
+          )}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-sage">Currently booked</p>
+            <p className="text-lg font-semibold text-charcoal">{booking.helperName}</p>
+            <p className="text-xs text-charcoal/60">
+              {booking.helperRole} · {booking.service} · {booking.date} · {booking.slot}
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-semibold text-charcoal">
+            {t.index >= 4 ? "Arrived" : `${t.etaMinutes} min`}
+          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-charcoal/50">ETA to your home</p>
+        </div>
+      </div>
+
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-white">
+        <div className="h-full rounded-full bg-sage transition-all" style={{ width: `${t.percent}%` }} />
+      </div>
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+        {stages.map((s, i) => (
+          <span
+            key={s}
+            className={`text-[10px] font-bold uppercase tracking-widest ${
+              i <= t.index ? "text-sage" : "text-charcoal/30"
+            }`}
+          >
+            {i <= t.index ? "●" : "○"} {s}
+          </span>
+        ))}
+      </div>
+      <p className="mt-3 text-sm text-charcoal/70">{t.detail}</p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {onWatch && (
+          <button
+            onClick={() => onWatch(booking.helperId)}
+            className="rounded-full border border-charcoal/15 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-charcoal"
+          >
+            📹 Video intro
+          </button>
+        )}
+        <Link
+          to="/helpers/$helperId"
+          params={{ helperId: booking.helperId }}
+          className="rounded-full border border-charcoal/15 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-charcoal"
+        >
+          Profile
+        </Link>
+        <button
+          onClick={endBooking}
+          className="rounded-full bg-charcoal px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-white"
+        >
+          Mark job complete
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function LiveAvailability({ onWatch }: { onWatch: (id: string) => void }) {
-  const list = useMemo(() => helpers.slice(0, 8), []);
+  const store = useStore();
+  const list = helpers.filter((h) => !store.disabledHelpers.includes(h.id)).slice(0, 8);
   return (
     <div className="rounded-2xl border border-charcoal/10 bg-white p-6">
-      <h3 className="mb-4 text-xl font-semibold text-charcoal">📍 Live helper availability</h3>
+      <h3 className="mb-4 text-xl font-semibold text-charcoal">📍 Helper availability</h3>
       <ul className="divide-y divide-charcoal/10">
         {list.map((h) => (
           <li key={h.id} className="flex items-center justify-between gap-3 py-2.5">
@@ -183,42 +286,46 @@ function LiveAvailability({ onWatch }: { onWatch: (id: string) => void }) {
   );
 }
 
-function MessagingPanel() {
+/** Chat is only unlocked with the currently booked helper. */
+function BookedChat({ booking }: { booking: ActiveBooking | null }) {
   const store = useStore();
-  const [helperId, setHelperId] = useState(helpers[0]?.id ?? "");
   const [text, setText] = useState("");
-  const thread = store.messages.filter((m) => m.helperId === helperId);
-  const helper = helpers.find((h) => h.id === helperId);
 
+  if (!booking) {
+    return (
+      <div className="rounded-2xl border border-charcoal/10 bg-white p-6">
+        <h3 className="mb-3 text-xl font-semibold text-charcoal">💬 Chat</h3>
+        <p className="text-sm text-muted-foreground">
+          🔒 Messaging unlocks once you book a helper. You can only chat with the helper currently booked —
+          past bookings are closed.
+        </p>
+      </div>
+    );
+  }
+
+  const thread = store.messages.filter((m) => m.helperId === booking.helperId);
   const send = (e: React.FormEvent) => {
     e.preventDefault();
     const t = text.trim();
-    if (!t || !helper) return;
-    sendMessage(helperId, t);
+    if (!t) return;
+    sendMessage(booking.helperId, t);
     setText("");
     setTimeout(() => {
-      sendMessage(
-        helperId,
-        `Namaste! ${helper.name} here — got your message, I'll confirm shortly.`,
-        "helper",
-      );
+      sendMessage(booking.helperId, `Namaste! ${booking.helperName} here — got your message, on my way.`, "helper");
     }, 900);
   };
 
   return (
     <div className="rounded-2xl border border-charcoal/10 bg-white p-6">
-      <h3 className="mb-4 text-xl font-semibold text-charcoal">💬 In-app messaging</h3>
-      <select
-        value={helperId}
-        onChange={(e) => setHelperId(e.target.value)}
-        className="mb-4 w-full rounded-lg border border-charcoal/15 px-3 py-2.5 text-charcoal outline-none focus:border-sage"
-      >
-        {helpers.map((h) => (
-          <option key={h.id} value={h.id}>
-            {h.name} — {h.role}
-          </option>
-        ))}
-      </select>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="text-xl font-semibold text-charcoal">💬 Chat with {booking.helperName}</h3>
+        <button
+          onClick={() => reportChat(booking.helperId, booking.helperName, "Reported by customer")}
+          className="text-[10px] font-bold uppercase tracking-widest text-terracotta hover:underline"
+        >
+          Report
+        </button>
+      </div>
       <div className="mb-3 h-48 space-y-2 overflow-y-auto rounded-lg bg-cream p-3">
         {thread.length === 0 ? (
           <p className="text-sm text-muted-foreground">No messages yet. Say hello 👋</p>
@@ -227,9 +334,7 @@ function MessagingPanel() {
             <div
               key={m.id}
               className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
-                m.from === "you"
-                  ? "ml-auto bg-sage text-white"
-                  : "bg-white text-charcoal shadow-sm"
+                m.from === "you" ? "ml-auto bg-sage text-white" : "bg-white text-charcoal shadow-sm"
               }`}
             >
               {m.text}
@@ -328,14 +433,33 @@ function InterviewPanel() {
       {store.interviews.length > 0 && (
         <ul className="mt-4 space-y-2 text-sm">
           {store.interviews.slice(0, 4).map((i) => (
-            <li key={i.id} className="rounded-lg bg-cream px-3 py-2 text-charcoal">
-              {i.helperName} · {i.mode === "video" ? "Video" : "In person"} · {i.date} at {i.time}
+            <li key={i.id} className="flex items-center justify-between gap-2 rounded-lg bg-cream px-3 py-2 text-charcoal">
+              <span>
+                {i.helperName} · {i.mode === "video" ? "Video" : "In person"} · {i.date} at {i.time}
+              </span>
+              <span
+                className={`text-[10px] font-bold uppercase tracking-widest ${
+                  i.status === "accepted" ? "text-sage" : i.status === "rejected" ? "text-terracotta" : "text-charcoal/50"
+                }`}
+              >
+                {i.status}
+              </span>
             </li>
           ))}
         </ul>
       )}
     </div>
   );
+}
+
+export function downloadAgreement(text: string, filename: string) {
+  const blob = new Blob([text], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function AgreementPanel() {
@@ -433,9 +557,17 @@ function AgreementPanel() {
       {store.agreements.length > 0 && (
         <ul className="mt-4 space-y-2 text-sm">
           {store.agreements.slice(0, 3).map((a) => (
-            <li key={a.id} className="rounded-lg bg-cream px-3 py-2 text-charcoal">
-              ✅ {a.helperName} ({a.role}) · from {a.startDate} · ₹{a.monthlyPay.toLocaleString("en-IN")}/month ·
-              signed by {a.signedBy}
+            <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-cream px-3 py-2 text-charcoal">
+              <span>
+                {a.helperSigned ? "✅" : "🕓"} {a.helperName} ({a.role}) · ₹{a.monthlyPay.toLocaleString("en-IN")}/month ·
+                signed by {a.signedBy}
+              </span>
+              <button
+                onClick={() => downloadAgreement(agreementText(a), `agreement-${a.helperName.replace(/\s+/g, "-")}.txt`)}
+                className="text-[10px] font-bold uppercase tracking-widest text-sage hover:underline"
+              >
+                ⬇ Download
+              </button>
             </li>
           ))}
         </ul>

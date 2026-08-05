@@ -11,11 +11,12 @@ export type BookingRecord = {
   createdAt: string;
 };
 
-export type Role = "customer" | "admin";
+export type Role = "customer" | "helper" | "admin";
 
 const RECORDS_KEY = "helpers.records";
 const ROLE_KEY = "helpers.role";
 const CUSTOMER_KEY = "helpers.customer";
+const ACTIVE_HELPER_KEY = "helpers.activeHelper";
 const EVENT = "helpers:store";
 
 function read<T>(key: string, fallback: T): T {
@@ -64,6 +65,16 @@ export function setCustomerName(name: string) {
   write(CUSTOMER_KEY, name);
 }
 
+/** Which helper's dashboard is currently being viewed (helper login / admin impersonation). */
+export function getActiveHelperId(): string {
+  return read<string>(ACTIVE_HELPER_KEY, "");
+}
+
+export function setActiveHelperId(id: string) {
+  write(ACTIVE_HELPER_KEY, id);
+}
+
+
 function useStoreValue<T>(getter: () => T, initial: T): T {
   const [value, setValue] = useState<T>(initial);
   useEffect(() => {
@@ -92,3 +103,8 @@ export function useRecords(): BookingRecord[] {
 export function useCustomerName(): string {
   return useStoreValue(getCustomerName, "");
 }
+
+export function useActiveHelperId(): string {
+  return useStoreValue(getActiveHelperId, "");
+}
+

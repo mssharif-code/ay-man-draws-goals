@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getHelperById, type Helper } from "@/data/helpers";
 import { supabase } from "@/lib/supabase";
 import { addRecord, setCustomerName } from "@/lib/records";
+import { startBooking } from "@/lib/household";
 
 
 export const Route = createFileRoute("/book/$helperId")({
@@ -156,6 +157,17 @@ function BookHelper() {
       pushNotif("🛵 Helper arriving", `${helper.name} is on the way. ETA ~15 min.`, 5000);
       pushNotif("⭐ Review reminder", `How was your service with ${helper.name}? Tap to rate.`, 8500);
       setCustomerName(form.fullName.trim());
+      startBooking({
+        helperId: helper.id,
+        helperName: helper.name,
+        helperRole: helper.role,
+        service: form.service,
+        date: form.date,
+        slot: form.slot ?? "",
+        hours: form.hours,
+        total,
+        customerName: form.fullName.trim(),
+      });
       addRecord({
         customerName: form.fullName.trim(),
         helperName: helper.name,

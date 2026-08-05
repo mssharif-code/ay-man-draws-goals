@@ -7,8 +7,10 @@ import { buildAttendance } from "@/lib/attendance";
 import { supabase, type Booking } from "@/lib/supabase";
 
 import { AiAssistantSection } from "@/components/AiAssistantSection";
-import { FamilyToolsSection, FavoriteButton, StatusDot } from "@/components/FamilyToolsSection";
-import { EmergencySupport, NotificationBell } from "@/components/SupportWidgets";
+import { CustomerDashboard, FavoriteButton, StatusDot } from "@/components/FamilyToolsSection";
+import { HelperDashboard, HelperPicker } from "@/components/HelperDashboard";
+import { AdminOversight } from "@/components/AdminOversight";
+import { NotificationBell } from "@/components/SupportWidgets";
 
 import {
   setRole,
@@ -99,11 +101,14 @@ function StickyNav() {
     e.preventDefault();
     document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-  const links = [
-    ...(role === "admin" ? [{ label: "Dashboard", target: "admin" }] : []),
-    ...navLinks,
-    { label: role === "admin" ? "All records" : "My records", target: "records" },
-  ];
+  const links =
+    role === "helper"
+      ? [{ label: "My dashboard", target: "helper-dashboard" }]
+      : [
+          ...(role === "admin" ? [{ label: "Dashboard", target: "admin" }] : []),
+          ...navLinks,
+          { label: role === "admin" ? "All records" : "My records", target: "records" },
+        ];
   return (
     <nav className="fixed top-0 left-0 z-50 w-full border-b border-charcoal/5 bg-white/95 backdrop-blur-md">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-10">
@@ -141,7 +146,7 @@ function RoleSwitcher() {
   const role = useRole();
   return (
     <div className="flex items-center gap-1 rounded-full border border-charcoal/10 bg-white p-1">
-      {(["customer", "admin"] as Role[]).map((r) => (
+      {(["customer", "helper", "admin"] as Role[]).map((r) => (
         <button
           key={r}
           onClick={() => setRole(r)}
@@ -149,15 +154,28 @@ function RoleSwitcher() {
             role === r ? "bg-sage text-white" : "text-charcoal/60 hover:text-charcoal"
           }`}
         >
-          {r === "customer" ? "Customer" : "Super admin"}
+          {r === "customer" ? "Customer" : r === "helper" ? "Helper" : "Super admin"}
         </button>
       ))}
+      {role === "helper" && <HelperPicker />}
     </div>
   );
 }
 
 function Index() {
   const role = useRole();
+
+  if (role === "helper") {
+    return (
+      <div id="top" className="min-h-screen bg-background">
+        <StickyNav />
+        <div className="pt-28">
+          <HelperDashboard />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div id="top" className="min-h-screen bg-background">
       <StickyNav />
@@ -167,7 +185,7 @@ function Index() {
       <HelpersSection />
       <TrustSection />
       <AiAssistantSection />
-      <FamilyToolsSection />
+      {role === "customer" && <CustomerDashboard />}
       <ResponsibilitiesSection />
       <TestimonialsSection />
       <FaqSection />
@@ -175,10 +193,10 @@ function Index() {
       <TipsSection />
       <SavedBookingsSection />
       <ContactSection />
-      <EmergencySupport />
     </div>
   );
 }
+
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleString("en-IN", {
@@ -255,6 +273,7 @@ function AdminDashboard() {
         </div>
 
         <StaffAttendanceTable />
+        <AdminOversight />
       </div>
     </section>
   );
