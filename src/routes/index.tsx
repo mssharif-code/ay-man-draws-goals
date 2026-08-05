@@ -273,6 +273,7 @@ function AdminDashboard() {
         </div>
 
         <StaffAttendanceTable />
+        <AdminOversight />
       </div>
     </section>
   );
