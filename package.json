@@ -63,7 +63,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@lovable.dev/vite-tanstack-config": "2.8.5",
+    "@lovable.dev/vite-tanstack-config": "2.13.1",
     "@tailwindcss/vite": "^4.1.14",
     "@types/node": "^22.16.5",
     "@types/react": "^19.1.13",
