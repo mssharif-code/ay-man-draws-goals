@@ -502,47 +502,55 @@ function Hero() {
   );
 }
 
-type QuizAnswers = {
-  familySize: string;
-  kids: string;
-  pets: string;
-  home: string;
-  schedule: string;
-  budget: string;
-  language: string;
-  cooking: string;
-  elderly: string;
-  driver: string;
-};
+type Answers = Record<string, string>;
 
-const initialAnswers: QuizAnswers = {
-  familySize: "",
-  kids: "",
-  pets: "",
-  home: "",
-  schedule: "",
-  budget: "",
-  language: "",
-  cooking: "",
-  elderly: "",
-  driver: "",
-};
-
-const quizQuestions: {
-  key: keyof QuizAnswers;
+type Question = {
+  key: string;
   label: string;
+  required?: boolean;
   options: { value: string; label: string }[];
-}[] = [
-  {
-    key: "familySize",
+};
+
+type ServiceDef = {
+  id: string;
+  label: string;
+  icon: string;
+  roles: RegExp;
+  core: Question[];
+  more: Question[];
+};
+
+const Q = {
+  people: {
+    key: "people",
     label: "How many people live in your home?",
+    required: true,
     options: [
       { value: "1-2", label: "1–2" },
       { value: "3-4", label: "3–4" },
       { value: "5+", label: "5 or more" },
     ],
-  },
-  {
+  } as Question,
+  home: {
+    key: "home",
+    label: "What type of home?",
+    required: true,
+    options: [
+      { value: "apartment", label: "Apartment" },
+      { value: "villa", label: "Villa / house" },
+    ],
+  } as Question,
+  frequency: {
+    key: "frequency",
+    label: "What type of help do you need?",
+    required: true,
+    options: [
+      { value: "full", label: "Full-time" },
+      { value: "part", label: "Part-time" },
+      { value: "oneoff", label: "One-off" },
+    ],
+  } as Question,
+  kids: {
     key: "kids",
     label: "Do you have kids?",
     options: [
@@ -550,8 +558,8 @@ const quizQuestions: {
       { value: "young", label: "Yes, under 6" },
       { value: "school", label: "Yes, school age" },
     ],
-  },
-  {
+  } as Question,
+  pets: {
     key: "pets",
     label: "Any pets at home?",
     options: [
@@ -560,25 +568,8 @@ const quizQuestions: {
       { value: "cat", label: "Cat(s)" },
       { value: "other", label: "Other" },
     ],
-  },
-  {
-    key: "home",
-    label: "What type of home?",
-    options: [
-      { value: "apartment", label: "Apartment" },
-      { value: "villa", label: "Villa / house" },
-    ],
-  },
-  {
-    key: "schedule",
-    label: "Full-time or part-time help?",
-    options: [
-      { value: "full", label: "Full-time" },
-      { value: "part", label: "Part-time" },
-      { value: "oneoff", label: "One-off / occasional" },
-    ],
-  },
-  {
+  } as Question,
+  budget: {
     key: "budget",
     label: "Hourly budget?",
     options: [
@@ -586,8 +577,8 @@ const quizQuestions: {
       { value: "mid", label: "₹200–₹300" },
       { value: "high", label: "₹300+" },
     ],
-  },
-  {
+  } as Question,
+  language: {
     key: "language",
     label: "Preferred language?",
     options: [
@@ -599,84 +590,292 @@ const quizQuestions: {
       { value: "Marathi", label: "Marathi" },
       { value: "any", label: "No preference" },
     ],
+  } as Question,
+  childCount: {
+    key: "childCount",
+    label: "How many children need care?",
+    required: true,
+    options: [
+      { value: "1", label: "1" },
+      { value: "2", label: "2" },
+      { value: "3+", label: "3 or more" },
+    ],
+  } as Question,
+  childAges: {
+    key: "childAges",
+    label: "Children's ages?",
+    required: true,
+    options: [
+      { value: "infant", label: "Infant (0–2)" },
+      { value: "toddler", label: "Toddler (3–5)" },
+      { value: "school", label: "School age (6+)" },
+      { value: "mixed", label: "Mixed ages" },
+    ],
+  } as Question,
+  driving: {
+    key: "driving",
+    label: "Driving requirements?",
+    required: true,
+    options: [
+      { value: "school", label: "School runs" },
+      { value: "office", label: "Daily office commute" },
+      { value: "errands", label: "Errands & groceries" },
+      { value: "outstation", label: "Outstation trips" },
+    ],
+  } as Question,
+  meals: {
+    key: "meals",
+    label: "How many meals per day?",
+    required: true,
+    options: [
+      { value: "1", label: "1 meal" },
+      { value: "2", label: "2 meals" },
+      { value: "3", label: "3 meals" },
+    ],
+  } as Question,
+  cuisine: {
+    key: "cuisine",
+    label: "Preferred cuisine?",
+    options: [
+      { value: "north", label: "North Indian" },
+      { value: "south", label: "South Indian" },
+      { value: "veg", label: "Pure vegetarian" },
+      { value: "any", label: "No preference" },
+    ],
+  } as Question,
+  elderNeeds: {
+    key: "elderNeeds",
+    label: "What kind of elderly support?",
+    required: true,
+    options: [
+      { value: "companion", label: "Companionship" },
+      { value: "mobility", label: "Mobility help" },
+      { value: "medical", label: "Medicines & appointments" },
+      { value: "full", label: "Full day care" },
+    ],
+  } as Question,
+  gardenSize: {
+    key: "gardenSize",
+    label: "Garden size?",
+    required: true,
+    options: [
+      { value: "balcony", label: "Balcony / terrace" },
+      { value: "small", label: "Small garden" },
+      { value: "large", label: "Large garden / lawn" },
+    ],
+  } as Question,
+  maintenance: {
+    key: "maintenance",
+    label: "What needs fixing?",
+    required: true,
+    options: [
+      { value: "electrical", label: "Electrical" },
+      { value: "plumbing", label: "Plumbing" },
+      { value: "carpentry", label: "Carpentry" },
+      { value: "painting", label: "Painting" },
+      { value: "ac", label: "AC / appliances" },
+    ],
+  } as Question,
+  other: {
+    key: "other",
+    label: "What kind of help are you looking for?",
+    required: true,
+    options: [
+      { value: "laundry", label: "Laundry & ironing" },
+      { value: "pet", label: "Pet care" },
+      { value: "organize", label: "Home organising" },
+      { value: "pest", label: "Pest control" },
+      { value: "pool", label: "Pool cleaning" },
+      { value: "security", label: "Security guard" },
+    ],
+  } as Question,
+};
+
+const services: ServiceDef[] = [
+  {
+    id: "cleaning",
+    label: "Cleaning",
+    icon: "🧽",
+    roles: /clean|laundry|organiz|organis/i,
+    core: [Q.people, Q.home, Q.frequency],
+    more: [Q.kids, Q.pets, Q.budget, Q.language],
   },
   {
-    key: "cooking",
-    label: "Need cooking help?",
-    options: [
-      { value: "yes", label: "Yes, daily meals" },
-      { value: "sometimes", label: "Occasionally" },
-      { value: "no", label: "No" },
-    ],
+    id: "cooking",
+    label: "Cooking",
+    icon: "🍲",
+    roles: /cook/i,
+    core: [Q.people, Q.meals, Q.frequency],
+    more: [Q.cuisine, Q.budget, Q.language, Q.home],
   },
   {
-    key: "elderly",
-    label: "Elderly care needed?",
-    options: [
-      { value: "yes", label: "Yes" },
-      { value: "no", label: "No" },
-    ],
+    id: "childcare",
+    label: "Childcare / Babysitting",
+    icon: "🧒",
+    roles: /child|nann/i,
+    core: [Q.childCount, Q.childAges, Q.frequency],
+    more: [Q.language, Q.budget, Q.home, Q.pets],
   },
   {
-    key: "driver",
-    label: "Driver required?",
-    options: [
-      { value: "yes", label: "Yes" },
-      { value: "no", label: "No" },
-    ],
+    id: "elderly",
+    label: "Elderly Care",
+    icon: "👵",
+    roles: /elder/i,
+    core: [Q.elderNeeds, Q.frequency, Q.home],
+    more: [Q.language, Q.budget, Q.people],
+  },
+  {
+    id: "driver",
+    label: "Driver",
+    icon: "🚗",
+    roles: /driver/i,
+    core: [Q.frequency, Q.driving],
+    more: [Q.budget, Q.language],
+  },
+  {
+    id: "gardening",
+    label: "Gardening",
+    icon: "🌿",
+    roles: /garden|pool/i,
+    core: [Q.gardenSize, Q.frequency],
+    more: [Q.budget, Q.language, Q.pets],
+  },
+  {
+    id: "maintenance",
+    label: "Home Maintenance",
+    icon: "🔧",
+    roles: /electric|plumb|carpent|paint|ac tech|handy|pest/i,
+    core: [Q.maintenance, Q.home],
+    more: [Q.frequency, Q.budget, Q.language],
+  },
+  {
+    id: "other",
+    label: "Other",
+    icon: "✨",
+    roles: /./i,
+    core: [Q.other, Q.frequency],
+    more: [Q.people, Q.home, Q.budget, Q.language, Q.pets],
   },
 ];
 
-function scoreHelper(helper: Helper, a: QuizAnswers): number {
-  let score = 0;
-  const role = helper.role.toLowerCase();
+const maintenanceRole: Record<string, RegExp> = {
+  electrical: /electric/i,
+  plumbing: /plumb/i,
+  carpentry: /carpent/i,
+  painting: /paint/i,
+  ac: /ac tech/i,
+};
 
-  if (a.kids !== "" && a.kids !== "none" && role.includes("nann")) score += 5;
-  if (a.pets !== "" && a.pets !== "none" && role.includes("pet")) score += 5;
-  if (a.cooking === "yes" && role.includes("cook")) score += 5;
-  if (a.cooking === "sometimes" && role.includes("cook")) score += 2;
-  if (a.elderly === "yes" && role.includes("elder")) score += 6;
-  if (a.home === "villa" && (role.includes("garden") || role.includes("handy"))) score += 3;
-  if (a.home === "apartment" && (role.includes("clean") || role.includes("laundry"))) score += 2;
-  if (a.familySize === "5+" && (role.includes("clean") || role.includes("cook"))) score += 2;
-  if (a.schedule === "full" && helper.availability.some((d) => /Mon\s*[–-]\s*Fri/i.test(d.day))) score += 1;
+const otherRole: Record<string, RegExp> = {
+  laundry: /laundry/i,
+  pet: /pet/i,
+  organize: /organiz|organis/i,
+  pest: /pest/i,
+  pool: /pool/i,
+  security: /security/i,
+};
+
+function scoreHelper(helper: Helper, service: ServiceDef, a: Answers): number {
+  const role = helper.role;
+  let score = service.roles.test(role) ? 10 : 0;
+
+  if (service.id === "maintenance" && a.maintenance) {
+    const re = maintenanceRole[a.maintenance];
+    if (re?.test(role)) score += 8;
+  }
+  if (service.id === "other" && a.other) {
+    const re = otherRole[a.other];
+    if (re?.test(role)) score += 10;
+  }
+  if (service.id === "driver" && a.driving) {
+    const drives = /transport|errand|grocery|drive|school/i.test(
+      [...helper.services, ...helper.responsibilities].join(" "),
+    );
+    if (drives) score += 4;
+  }
+  if (a.gardenSize === "large" && /garden/i.test(role)) score += 3;
+  if (a.gardenSize === "balcony" && /garden|pool/i.test(role)) score += 1;
+  if (a.people === "5+" || a.meals === "3") score += helper.experienceYears >= 6 ? 3 : 0;
+  if (a.home === "villa" && /garden|handy|pool|deep/i.test(role)) score += 2;
+  if (a.home === "apartment" && /clean|laundry|cook/i.test(role)) score += 2;
+  if (a.childAges === "infant" && helper.experienceYears >= 5) score += 2;
+  if (a.pets && a.pets !== "none" && /pet/i.test(role)) score += 2;
+  if (a.frequency === "full" && helper.availability.some((d) => /Mon\s*[–-]\s*Fri/i.test(d.day))) score += 1;
 
   if (a.budget === "low" && helper.rateMax <= 220) score += 3;
   else if (a.budget === "mid" && helper.rateMin >= 180 && helper.rateMax <= 320) score += 3;
   else if (a.budget === "high" && helper.rateMax >= 300) score += 3;
-  else if (a.budget !== "") score -= 1;
 
-  if (a.language && a.language !== "any") {
-    if (helper.languages.includes(a.language)) score += 3;
-  }
+  if (a.language && a.language !== "any" && helper.languages.includes(a.language)) score += 3;
 
-  if (a.driver === "yes") {
-    const drives = /transport|errand|grocery|drive/i.test(
-      [...helper.services, ...helper.responsibilities].join(" "),
-    );
-    if (drives) score += 3;
-  }
-
+  score += Math.min(3, Math.round(helper.experienceYears / 4));
   return score;
 }
 
+function QuestionCard({
+  q,
+  value,
+  onPick,
+}: {
+  q: Question;
+  value: string;
+  onPick: (v: string) => void;
+}) {
+  return (
+    <fieldset className="space-y-3">
+      <legend className="text-sm font-bold uppercase tracking-widest text-charcoal">
+        {q.label}{" "}
+        <span className={`ml-1 text-[10px] ${q.required ? "text-terracotta" : "text-muted-foreground"}`}>
+          {q.required ? "required" : "optional"}
+        </span>
+      </legend>
+      <div className="flex flex-wrap gap-2">
+        {q.options.map((opt) => {
+          const selected = value === opt.value;
+          return (
+            <button
+              type="button"
+              key={opt.value}
+              onClick={() => onPick(selected && !q.required ? "" : opt.value)}
+              className={`rounded-full border px-4 py-2 text-sm transition ${
+                selected
+                  ? "border-sage bg-sage text-white"
+                  : "border-charcoal/15 bg-background text-charcoal hover:border-sage/60"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
 function MatchingSection() {
-  const [answers, setAnswers] = useState<QuizAnswers>(initialAnswers);
+  const [service, setService] = useState<ServiceDef | null>(null);
+  const [answers, setAnswers] = useState<Answers>({});
+  const [showMore, setShowMore] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const allAnswered = quizQuestions.every((q) => answers[q.key] !== "");
+  const coreDone = service ? service.core.every((q) => (answers[q.key] ?? "") !== "") : false;
 
-  const matches = submitted
-    ? [...helpers]
-        .map((h) => ({ helper: h, score: scoreHelper(h, answers) }))
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3)
-    : [];
+  const matches =
+    submitted && service
+      ? [...helpers]
+          .map((h) => ({ helper: h, score: scoreHelper(h, service, answers) }))
+          .sort((a, b) => b.score - a.score)
+          .slice(0, 5)
+      : [];
 
   const reset = () => {
-    setAnswers(initialAnswers);
+    setService(null);
+    setAnswers({});
+    setShowMore(false);
     setSubmitted(false);
   };
+
+  const pick = (key: string) => (v: string) => setAnswers((prev) => ({ ...prev, [key]: v }));
 
   return (
     <section id="match" className="bg-cream px-6 py-24 md:px-10">
@@ -694,82 +893,35 @@ function MatchingSection() {
             PERFECT MATCH.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-muted-foreground">
-            Answer 10 quick questions and we'll match you with the helpers who fit
-            your household best.
+            Pick the help you need, answer 2–3 quick questions, and we'll shortlist the
+            best helpers for your home — in under a minute.
           </p>
         </div>
 
-        {!submitted ? (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (allAnswered) setSubmitted(true);
-            }}
-            className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-10"
-          >
-            <div className="grid gap-8 md:grid-cols-2">
-              {quizQuestions.map((q) => (
-                <fieldset key={q.key} className="space-y-3">
-                  <legend className="text-sm font-bold uppercase tracking-widest text-charcoal">
-                    {q.label}
-                  </legend>
-                  <div className="flex flex-wrap gap-2">
-                    {q.options.map((opt) => {
-                      const selected = answers[q.key] === opt.value;
-                      return (
-                        <button
-                          type="button"
-                          key={opt.value}
-                          onClick={() =>
-                            setAnswers((prev) => ({ ...prev, [q.key]: opt.value }))
-                          }
-                          className={`rounded-full border px-4 py-2 text-sm transition ${
-                            selected
-                              ? "border-sage bg-sage text-white"
-                              : "border-charcoal/15 bg-background text-charcoal hover:border-sage/60"
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </fieldset>
-              ))}
-            </div>
-
-            <div className="mt-10 flex flex-wrap items-center justify-between gap-4">
-              <p className="text-xs text-muted-foreground">
-                {Object.values(answers).filter(Boolean).length} of {quizQuestions.length} answered
-              </p>
-              <button
-                type="submit"
-                disabled={!allAnswered}
-                className="rounded-lg bg-sage px-6 py-3 text-sm font-bold uppercase tracking-widest text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                See my matches →
-              </button>
-            </div>
-          </form>
-        ) : (
+        {submitted ? (
           <div className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-10">
             <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-              <h3
-                className="text-4xl tracking-tight text-charcoal"
-                style={{ fontFamily: "var(--font-display)" }}
-              >
-                Your top matches
-              </h3>
+              <div>
+                <h3
+                  className="text-4xl tracking-tight text-charcoal"
+                  style={{ fontFamily: "var(--font-display)" }}
+                >
+                  Your top matches
+                </h3>
+                <p className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">
+                  {service?.icon} {service?.label}
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={reset}
                 className="rounded-lg border border-charcoal/20 px-4 py-2 text-xs font-bold uppercase tracking-widest text-charcoal transition hover:bg-charcoal/5"
               >
-                Retake quiz
+                Start again
               </button>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {matches.map(({ helper, score }, i) => (
                 <div
                   key={helper.id}
@@ -793,10 +945,7 @@ function MatchingSection() {
                     <p className="text-xs font-semibold uppercase tracking-widest text-terracotta">
                       {helper.role}
                     </p>
-                    <p className="mt-2 text-xs text-charcoal/60">
-                      {helper.city}, {helper.state} · Speaks {helper.nativeLanguage}
-                    </p>
-                    <p className="mt-3 text-sm text-muted-foreground">
+                    <p className="mt-2 text-sm text-muted-foreground">
                       ₹{helper.rateMin}–₹{helper.rateMax}/hr · {helper.languages.join(", ")}
                     </p>
                     <p className="mt-2 text-xs text-sage">Compatibility score: {score}</p>
@@ -815,6 +964,91 @@ function MatchingSection() {
               ))}
             </div>
           </div>
+        ) : !service ? (
+          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-10">
+            <p className="mb-6 text-sm font-bold uppercase tracking-widest text-charcoal">
+              Step 1 · What type of help do you need?
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {services.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setService(s)}
+                  className="flex flex-col items-start gap-2 rounded-2xl border border-charcoal/15 bg-background p-5 text-left transition hover:border-sage hover:shadow-md"
+                >
+                  <span className="text-2xl">{s.icon}</span>
+                  <span className="text-sm font-bold text-charcoal">{s.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (coreDone) setSubmitted(true);
+            }}
+            className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-10"
+          >
+            <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm font-bold uppercase tracking-widest text-charcoal">
+                Step 2 · {service.icon} {service.label}
+              </p>
+              <button
+                type="button"
+                onClick={reset}
+                className="text-xs font-bold uppercase tracking-widest text-sage hover:underline"
+              >
+                Change service
+              </button>
+            </div>
+
+            <div className="grid gap-8 md:grid-cols-2">
+              {service.core.map((q) => (
+                <QuestionCard key={q.key} q={q} value={answers[q.key] ?? ""} onPick={pick(q.key)} />
+              ))}
+            </div>
+
+            <div className="mt-10 border-t border-border pt-6">
+              <button
+                type="button"
+                onClick={() => setShowMore((v) => !v)}
+                className="text-xs font-bold uppercase tracking-widest text-charcoal hover:text-sage"
+              >
+                {showMore ? "− Hide" : "+ More preferences"}{" "}
+                <span className="font-normal normal-case tracking-normal text-muted-foreground">
+                  (optional — you can skip this)
+                </span>
+              </button>
+              {showMore && (
+                <div className="mt-6 grid gap-8 md:grid-cols-2">
+                  {service.more.map((q) => (
+                    <QuestionCard
+                      key={q.key}
+                      q={{ ...q, required: false }}
+                      value={answers[q.key] ?? ""}
+                      onPick={pick(q.key)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-10 flex flex-wrap items-center justify-between gap-4">
+              <p className="text-xs text-muted-foreground">
+                {service.core.filter((q) => answers[q.key]).length} of {service.core.length} required
+                answered
+              </p>
+              <button
+                type="submit"
+                disabled={!coreDone}
+                className="rounded-lg bg-sage px-6 py-3 text-sm font-bold uppercase tracking-widest text-white transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                See my matches →
+              </button>
+            </div>
+          </form>
         )}
 
         <MatchChatBot />
