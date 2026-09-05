@@ -475,7 +475,7 @@ function Hero() {
         height={720}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/70 to-cream/30" />
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-32 md:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-40 pt-32 md:px-10 md:pb-20">
         <p className="mb-4 text-xs font-bold uppercase tracking-[0.4em] text-sage">
           Verified · Reliable · Caring
         </p>
