@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import heroHelpers from "@/assets/hero-helpers.jpg";
+import helpersLogoAsset from "@/assets/helpers-logo.png.asset.json";
+import helpersBrandCharacter from "@/assets/helpers-brand-character.png";
 import { helpers, type Helper } from "@/data/helpers";
 import { buildAttendance } from "@/lib/attendance";
 import { supabase, type Booking } from "@/lib/supabase";
@@ -115,10 +117,16 @@ function StickyNav() {
         <a
           href="#top"
           onClick={(e) => handleClick(e, "top")}
-          className="shrink-0 text-xl font-semibold tracking-tight text-charcoal md:text-2xl"
-          style={{ fontFamily: "var(--font-display)" }}
+          className="shrink-0"
+          aria-label="Helpers home"
         >
-          HELPERS
+          <img
+            src={helpersLogoAsset.url}
+            alt="Helpers"
+            className="h-11 w-11 object-contain md:h-14 md:w-14"
+            width={56}
+            height={56}
+          />
         </a>
         <div className="flex items-center gap-2">
           <NotificationBell />
@@ -467,7 +475,7 @@ function Hero() {
         height={720}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/70 to-cream/30" />
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-20 pt-32 md:px-10">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-40 pt-32 md:px-10 md:pb-20">
         <p className="mb-4 text-xs font-bold uppercase tracking-[0.4em] text-sage">
           Verified · Reliable · Caring
         </p>
@@ -497,6 +505,13 @@ function Hero() {
             Hiring Tips
           </a>
         </div>
+        <img
+          src={helpersBrandCharacter}
+          alt="Helpers brand character welcoming families"
+          className="pointer-events-none absolute bottom-0 right-1 z-10 h-auto w-28 object-contain drop-shadow-lg sm:w-36 md:right-8 md:w-48 lg:w-56"
+          width={667}
+          height={802}
+        />
       </div>
     </section>
   );
